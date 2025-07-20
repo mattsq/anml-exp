@@ -1,4 +1,5 @@
 """Anomaly detection models."""
+from .autoencoder import AutoEncoderModel
 from .base import BaseAnomalyModel
 from .isolation_forest import IsolationForestModel
 from .local_outlier_factor import LocalOutlierFactorModel
@@ -9,4 +10,5 @@ __all__ = [
     "IsolationForestModel",
     "LocalOutlierFactorModel",
     "OneClassSVMModel",
+    "AutoEncoderModel",
 ]

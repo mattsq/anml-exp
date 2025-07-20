@@ -24,6 +24,7 @@ The benchmark runner can be invoked from the command line::
 - ``isolation_forest``
 - ``local_outlier_factor``
 - ``one_class_svm``
+- ``autoencoder``
 
 This writes a JSON file compatible with ``results/results-schema.json``.
 
