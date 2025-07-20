@@ -15,12 +15,19 @@ from sklearn.metrics import (  # type: ignore[import-untyped]
     roc_curve,
 )
 
-from anomaly_models import IsolationForestModel
+from anomaly_models import (
+    BaseAnomalyModel,
+    IsolationForestModel,
+    LocalOutlierFactorModel,
+    OneClassSVMModel,
+)
 from datasets.registry import load_dataset
 
 # Registry of available models
-MODEL_REGISTRY = {
+MODEL_REGISTRY: dict[str, type[BaseAnomalyModel]] = {
     "isolation_forest": IsolationForestModel,
+    "local_outlier_factor": LocalOutlierFactorModel,
+    "one_class_svm": OneClassSVMModel,
 }
 
 
