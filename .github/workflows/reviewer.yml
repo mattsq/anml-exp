@@ -1,0 +1,30 @@
+name: Reviewer Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy scipy scikit-learn sphinx myst-parser jsonschema ruff mypy pytest
+          pip install -e .
+      - name: Ruff
+        run: ruff check .
+      - name: Mypy
+        run: mypy --strict anomaly_models datasets tests
+      - name: Pytest
+        run: pytest -q
+      - name: Build docs
+        run: sphinx-build -b html docs docs/_build
+      - name: Validate results
+        run: python scripts/validate_results.py

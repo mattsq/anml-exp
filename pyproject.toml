@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anml-exp"
+version = "0.0.0"
+description = "Anomaly detection experimentation"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy",
+  "scipy",
+  "scikit-learn",
+]
+
+[project.optional-dependencies]
+torch = ["torch>=2.0"]
+pandas = ["pandas>=2.0"]
+plot = ["matplotlib>=3.9"]
+docs = ["sphinx", "myst-parser"]
+dev = ["jsonschema"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[tool.ruff]
+line-length = 88
+
+[tool.setuptools]
+packages = ["anomaly_models", "datasets"]
