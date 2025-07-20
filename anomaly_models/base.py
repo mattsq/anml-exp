@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Optional
+
 import numpy as np
 
 ArrayLike = np.ndarray
@@ -13,7 +14,9 @@ class BaseAnomalyModel(ABC):
     """Abstract base class for anomaly detection models."""
 
     @abstractmethod
-    def fit(self, X: ArrayLike, y: Optional[ArrayLike] | None = None) -> "BaseAnomalyModel":
+    def fit(
+        self, X: ArrayLike, y: Optional[ArrayLike] | None = None
+    ) -> "BaseAnomalyModel":
         """Fit the model."""
         raise NotImplementedError
 
