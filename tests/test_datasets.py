@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy.testing as npt
 
-from datasets.registry import load_dataset
+from anml_exp.data import load_dataset
 
 
 def test_toy_blobs_deterministic() -> None:

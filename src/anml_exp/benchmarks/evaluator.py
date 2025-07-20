@@ -15,7 +15,8 @@ from sklearn.metrics import (  # type: ignore[import-untyped]
     roc_curve,
 )
 
-from anomaly_models import (
+from anml_exp.data import load_dataset
+from anml_exp.models import (
     BaseAnomalyModel,
     DeepSVDDModel,
     IsolationForestModel,
@@ -25,7 +26,6 @@ from anomaly_models import (
     PCAAnomalyModel,
     USADModel,
 )
-from datasets.registry import load_dataset
 
 # Registry of available models
 MODEL_REGISTRY: dict[str, type[BaseAnomalyModel]] = {

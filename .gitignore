@@ -210,6 +210,3 @@ __marimo__/
 .agents/
 
 # Repository data
-results/*
-!results/results-schema.json
-.agents/

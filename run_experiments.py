@@ -3,14 +3,15 @@ from __future__ import annotations
 
 import argparse
 import json
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-from evaluator import run_benchmark
+from anml_exp.benchmarks.evaluator import run_benchmark
 
-SCHEMA_PATH = Path("results/results-schema.json")
+SCHEMA_PATH = files("anml_exp.resources").joinpath("results-schema.json")
 
 
 def _validate(result: dict[str, Any]) -> None:

@@ -6,7 +6,7 @@ import numpy as np
 from numpy.typing import NDArray
 from sklearn.datasets import make_blobs  # type: ignore[import-untyped]
 
-from anomaly_models import (
+from anml_exp.models import (
     AutoEncoderModel,
     DeepSVDDModel,
     IsolationForestModel,
