@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-import yaml  # type: ignore[import-untyped]
+import yaml
 
 from evaluator import run_benchmark
 
@@ -15,7 +15,7 @@ SCHEMA_PATH = Path("results/results-schema.json")
 
 def _validate(result: dict[str, Any]) -> None:
     """Validate ``result`` using ``results/results-schema.json``."""
-    import jsonschema  # type: ignore[import-untyped]
+    import jsonschema
 
     schema = json.loads(SCHEMA_PATH.read_text())
     jsonschema.validate(result, schema)
