@@ -11,6 +11,7 @@ dependencies = [
     "numpy",
     "scipy",
     "scikit-learn",
+    "jsonschema",
 ]
 
 [project.optional-dependencies]

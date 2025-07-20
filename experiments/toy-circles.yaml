@@ -1,0 +1,11 @@
+# Experiment: toy-circles dataset with all reference models
+dataset: toy-circles
+seed: 42
+hardware: CPU-unknown
+output_dir: results/toy-circles
+models:
+  isolation_forest:
+    n_estimators: 100
+  local_outlier_factor: {}
+  one_class_svm:
+    gamma: 0.1
