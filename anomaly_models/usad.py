@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
+import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -123,7 +124,7 @@ class USADModel(BaseAnomalyModel):
             recon_loss1 = torch.mean((tensor_X - x1) ** 2, dim=1)
             recon_loss2 = torch.mean((tensor_X - x2) ** 2, dim=1)
             scores = self.cfg.alpha * recon_loss1 + (1 - self.cfg.alpha) * recon_loss2
-        return scores.cpu().numpy()
+        return np.asarray(scores.cpu().numpy(), dtype=np.float64)
 
     @property
     def decision_threshold(self) -> float:
