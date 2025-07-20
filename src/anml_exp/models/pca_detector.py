@@ -28,12 +28,5 @@ class PCAAnomalyModel(BaseAnomalyModel):
         errors: NDArray = np.mean((X - recon) ** 2, axis=1)
         return errors
 
-    @property
-    def decision_threshold(self) -> float:
-        if self._threshold is None:
-            raise RuntimeError("Model has no threshold set")
-        return self._threshold
 
-    def set_threshold(self, value: float) -> None:
-        self._threshold = value
 
