@@ -7,6 +7,7 @@ from numpy.typing import NDArray
 from sklearn.datasets import make_blobs  # type: ignore[import-untyped]
 
 from anomaly_models import (
+    AutoEncoderModel,
     IsolationForestModel,
     LocalOutlierFactorModel,
     OneClassSVMModel,
@@ -39,3 +40,7 @@ def test_local_outlier_factor() -> None:
 
 def test_one_class_svm() -> None:
     _check_model(OneClassSVMModel())
+
+
+def test_autoencoder() -> None:
+    _check_model(AutoEncoderModel(n_epochs=2))
