@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from typing import Optional
+
 from sklearn.ensemble import IsolationForest  # type: ignore[import-untyped]
 
-from .base import BaseAnomalyModel, ArrayLike, NDArray
+from .base import ArrayLike, BaseAnomalyModel, NDArray
 
 
 class IsolationForestModel(BaseAnomalyModel):
@@ -14,7 +15,9 @@ class IsolationForestModel(BaseAnomalyModel):
         self.model = IsolationForest(**params)
         self._threshold: float | None = None
 
-    def fit(self, X: ArrayLike, y: Optional[ArrayLike] | None = None) -> "IsolationForestModel":
+    def fit(
+        self, X: ArrayLike, y: Optional[ArrayLike] | None = None
+    ) -> "IsolationForestModel":
         self.model.fit(X)
         return self
 
