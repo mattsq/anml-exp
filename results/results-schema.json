@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Benchmark Result",
+  "type": "object",
+  "properties": {
+    "dataset": {"type": "string"},
+    "model": {"type": "string"},
+    "n_samples": {"type": "integer"},
+    "seed": {"type": "integer"},
+    "hardware": {"type": "string"},
+    "roc_auc": {"type": "number"},
+    "pr_auc": {"type": "number"},
+    "f1": {"type": "number"},
+    "threshold": {"type": "number"},
+    "fit_time": {"type": "number"},
+    "score_time": {"type": "number"},
+    "params": {"type": "object"}
+  },
+  "required": [
+    "dataset", "model", "n_samples", "seed", "hardware",
+    "roc_auc", "pr_auc", "f1", "threshold", "fit_time",
+    "score_time", "params"
+  ]
+}
