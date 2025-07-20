@@ -26,6 +26,8 @@ The benchmark runner can be invoked from the command line::
 - ``one_class_svm``
 - ``autoencoder``
 - ``pca``
+- ``deep_svdd``
+- ``usad``
 
 This writes a JSON file compatible with ``results/results-schema.json``.
 
