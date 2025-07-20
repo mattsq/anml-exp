@@ -11,6 +11,7 @@ from anomaly_models import (
     DeepSVDDModel,
     IsolationForestModel,
     LocalOutlierFactorModel,
+    MatrixProfileModel,
     OneClassSVMModel,
     PCAAnomalyModel,
     USADModel,
@@ -59,3 +60,12 @@ def test_deep_svdd() -> None:
 
 def test_usad_model() -> None:
     _check_model(USADModel(n_epochs=2))
+
+
+def test_matrix_profile_model() -> None:
+    series = np.linspace(0, 1, 50)
+    window = 5
+    windows = np.lib.stride_tricks.sliding_window_view(series, window)
+    model = MatrixProfileModel(window_size=window).fit(windows[:-10])
+    scores = model.score_samples(windows[-10:])
+    assert scores.shape == (10,)

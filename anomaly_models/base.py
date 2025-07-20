@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
+from numpy.typing import NDArray as _NDArray
 
-ArrayLike = np.ndarray
-NDArray = np.ndarray
+ArrayLike = _NDArray[Any]
+NDArray = _NDArray[np.float64]
 
 
 class BaseAnomalyModel(ABC):

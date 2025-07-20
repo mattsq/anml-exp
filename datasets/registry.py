@@ -4,9 +4,10 @@ from __future__ import annotations
 from typing import Optional, Tuple
 
 import numpy as np
+from numpy.typing import NDArray as _NDArray
 from sklearn.datasets import make_blobs  # type: ignore[import-untyped]
 
-NDArray = np.ndarray
+NDArray = _NDArray[np.float64]
 Dataset = Tuple[NDArray, Optional[NDArray]]
 
 
@@ -238,12 +239,64 @@ def _digits(split: str, *, seed: int) -> Dataset:
     raise KeyError(f"Unknown split: {split}")
 
 
+def _nab_twitter_aapl(split: str, *, seed: int) -> Dataset:
+    """Twitter volume for AAPL from the NAB dataset.
+
+    Data are windowed with length ``24`` and stride ``1``. The first 80%% of
+    windows are returned as the training split without labels. The remaining
+    windows form the test split with binary labels derived from
+    ``labels/combined_labels.json`` of the NAB repository.
+    """
+
+    import json
+    import urllib.request
+
+    from numpy.lib.stride_tricks import sliding_window_view
+
+    data_url = (
+        "https://raw.githubusercontent.com/numenta/NAB/master/data/realTweets/"
+        "Twitter_volume_AAPL.csv"
+    )
+    label_url = (
+        "https://raw.githubusercontent.com/numenta/NAB/master/labels/"
+        "combined_labels.json"
+    )
+
+    with urllib.request.urlopen(data_url) as f:
+        arr = np.genfromtxt(f, delimiter=",", skip_header=1, dtype="str")
+
+    times = np.array(arr[:, 0], dtype="datetime64[s]")
+    values = arr[:, 1].astype(np.float64)
+
+    with urllib.request.urlopen(label_url) as f:
+        labels = json.load(f)["realTweets/Twitter_volume_AAPL.csv"]
+    anomaly_times = np.array([np.datetime64(t) for t in labels])
+
+    flags = np.isin(times, anomaly_times).astype(int)
+    window = 24
+    windows = sliding_window_view(values, window)
+    labels_window = np.array([
+        flags[i : i + window].max() for i in range(len(windows))
+    ], dtype=int)
+
+    split_idx = int(0.8 * len(windows))
+
+    if split == "train":
+        return windows[:split_idx], None
+
+    if split == "test":
+        return windows[split_idx:], labels_window[split_idx:]
+
+    raise KeyError(f"Unknown split: {split}")
+
+
 _REGISTRY = {
     "toy-blobs": _toy_blobs,
     "toy-circles": _toy_circles,
     "breast-cancer": _breast_cancer,
     "wine": _wine,
     "digits": _digits,
+    "nab-twitter-aapl": _nab_twitter_aapl,
 }
 
 
