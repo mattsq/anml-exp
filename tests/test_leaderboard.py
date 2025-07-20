@@ -1,0 +1,24 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+from evaluator import run_benchmark
+from leaderboard import write_leaderboard
+
+
+@pytest.mark.skipif(pytest.importorskip("pandas") is None, reason="requires pandas")
+def test_write_leaderboard(tmp_path: Path) -> None:
+    result = run_benchmark(
+        dataset="toy-blobs",
+        model_name="isolation_forest",
+        seed=0,
+        hardware="test",
+        output=tmp_path / "res.json",
+        n_estimators=10,
+    )
+    write_leaderboard([result], tmp_path)
+    assert (tmp_path / "leaderboard.json").exists()
+    assert (tmp_path / "leaderboard.md").exists()
+

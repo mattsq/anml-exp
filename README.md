@@ -12,3 +12,12 @@ python evaluator.py \
     --model isolation_forest \
     --output results/example.json
 ```
+
+## Leaderboard
+
+Run ``leaderboard.py`` to benchmark all built-in tabular datasets and generate a
+Markdown leaderboard. Results are stored under ``results/leaderboard``.
+
+```bash
+python leaderboard.py --hardware CPU-unknown
+```

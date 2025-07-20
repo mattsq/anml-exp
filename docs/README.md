@@ -31,6 +31,13 @@ The benchmark runner can be invoked from the command line::
 
 This writes a JSON file compatible with ``results/results-schema.json``.
 
+## Leaderboard
+
+Use `leaderboard.py` to benchmark all built-in tabular datasets and aggregate the results into a Markdown table::
+
+    python leaderboard.py --hardware CPU-unknown
+
+
 ## Available datasets
 
 The following dataset identifiers can be passed to

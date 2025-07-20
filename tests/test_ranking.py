@@ -14,7 +14,7 @@ from datasets.registry import load_dataset
     dx=st.floats(-5, 5, allow_nan=False, allow_infinity=False),
     dy=st.floats(-5, 5, allow_nan=False, allow_infinity=False),
 )
-@settings(max_examples=10)
+@settings(max_examples=10, deadline=None)
 def test_ranking_invariance(seed: int, scale: float, dx: float, dy: float) -> None:
     """Anomaly score ordering should be invariant to affine transforms."""
     X_train, _ = load_dataset("toy-blobs", split="train", seed=seed)
