@@ -20,6 +20,16 @@ torch = ["torch>=2.0"]
 pandas = ["pandas>=2.0"]
 plot = ["matplotlib>=3.9"]
 ts = ["stumpy>=1.11"]
+dev = [
+    "ruff",
+    "mypy",
+    "pytest",
+    "pytest-xdist",
+    "pandas-stubs",
+    "types-PyYAML",
+    "types-jsonschema",
+    "tabulate",
+]
 
 [tool.ruff]
 line-length = 88

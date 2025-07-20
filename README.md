@@ -1,6 +1,16 @@
 # anml-exp
 A unified interface to prototype and test anomaly detection methods.
 
+## Installation
+
+Create a reproducible environment with `uv` and install optional extras as
+needed:
+
+```bash
+uv pip sync -r uv.lock
+pip install -e ".[torch,plot]"
+```
+
 ## Benchmarking
 
 Run ``anml_exp.cli`` to execute a benchmark and produce a JSON result

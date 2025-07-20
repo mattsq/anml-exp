@@ -18,13 +18,13 @@ jobs:
         cache: 'pip'
         cache-dependency-path: |
           pyproject.toml
-          requirements.txt
+          uv.lock
 
     - name: Restore venv
       uses: actions/cache/restore@v4
       with:
         path: .venv
-        key: venv-${{ runner.os }}-py3.11-${{ hashFiles('requirements.txt') }}
+        key: venv-${{ runner.os }}-py3.11-${{ hashFiles('uv.lock') }}
 
     - name: Build venv if needed
       if: steps.restore-venv.outputs.cache-hit != 'true'
@@ -33,7 +33,7 @@ jobs:
       run: |
         python -m venv .venv
         . .venv/bin/activate
-        pip install -r requirements.txt
+        uv pip sync -r uv.lock
         echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
 
     - name: Install dependencies
@@ -42,7 +42,7 @@ jobs:
       run: |
         . .venv/bin/activate
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        uv pip sync -r uv.lock
 
     - name: Ruff
       run: |
@@ -63,4 +63,4 @@ jobs:
       uses: actions/cache/save@v4
       with:
         path: .venv
-        key: venv-${{ runner.os }}-py3.11-${{ hashFiles('requirements.txt') }}
+        key: venv-${{ runner.os }}-py3.11-${{ hashFiles('uv.lock') }}
