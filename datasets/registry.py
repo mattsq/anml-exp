@@ -152,10 +152,98 @@ def _breast_cancer(split: str, *, seed: int) -> Dataset:
     raise KeyError(f"Unknown split: {split}")
 
 
+def _wine(split: str, *, seed: int) -> Dataset:
+    """UCI Wine recognition dataset.
+
+    Class ``0`` (Cultivar 1) is considered normal. The training split
+    contains only this class. The test split is a stratified 20% hold-out
+    containing all three classes with non-normal samples labelled as
+    anomalies.
+
+    Data are loaded via :func:`sklearn.datasets.load_wine` and the split is
+    performed deterministically using
+    :func:`sklearn.model_selection.train_test_split` with ``seed``.
+
+    References
+    ----------
+    * M. Forina et al., "Parvus" dataset, 1991.
+    * D. Dua and C. Graff, "UCI Machine Learning Repository", 2019.
+    """
+
+    from sklearn.datasets import load_wine
+    from sklearn.model_selection import train_test_split
+
+    rng = np.random.default_rng(seed)
+
+    X, y = load_wine(return_X_y=True)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=rng.integers(0, 2**32 - 1),
+        stratify=y,
+    )
+
+    if split == "train":
+        X_norm = X_train[y_train == 0]
+        return X_norm.astype(np.float64), None
+
+    if split == "test":
+        y_test_anom = (y_test != 0).astype(int)
+        return X_test.astype(np.float64), y_test_anom
+
+    raise KeyError(f"Unknown split: {split}")
+
+
+def _digits(split: str, *, seed: int) -> Dataset:
+    """Scikit-learn digits dataset.
+
+    Digit ``0`` is treated as the normal class. The training split contains
+    only zeros. The test split is a stratified 20% hold-out containing all
+    digits with non-zero digits labelled as anomalies.
+
+    Data are loaded via :func:`sklearn.datasets.load_digits` and the split is
+    performed deterministically using
+    :func:`sklearn.model_selection.train_test_split` with ``seed``.
+
+    References
+    ----------
+    * K. Bache and M. Lichman, "UCI Machine Learning Repository", 2013.
+    """
+
+    from sklearn.datasets import load_digits
+    from sklearn.model_selection import train_test_split
+
+    rng = np.random.default_rng(seed)
+
+    X, y = load_digits(return_X_y=True)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=rng.integers(0, 2**32 - 1),
+        stratify=y,
+    )
+
+    if split == "train":
+        X_norm = X_train[y_train == 0]
+        return X_norm.astype(np.float64), None
+
+    if split == "test":
+        y_test_anom = (y_test != 0).astype(int)
+        return X_test.astype(np.float64), y_test_anom
+
+    raise KeyError(f"Unknown split: {split}")
+
+
 _REGISTRY = {
     "toy-blobs": _toy_blobs,
     "toy-circles": _toy_circles,
     "breast-cancer": _breast_cancer,
+    "wine": _wine,
+    "digits": _digits,
 }
 
 

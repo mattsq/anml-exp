@@ -37,3 +37,5 @@ The following dataset identifiers can be passed to
 - ``toy-blobs``
 - ``toy-circles``
 - ``breast-cancer``
+- ``wine``
+- ``digits``
