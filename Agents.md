@@ -1,103 +1,146 @@
-Agents.md   ― spec _version: 0.2.0 (2025-07-20)
+# Agents.md   ― spec _version: **0.3.1**  (2025-07-20)
 
-Purpose & Non-Goals
-This repository is a sandbox for rapid prototyping and benchmarking of anomaly-scoring / detection algorithms in Python.
-Out of scope: streaming / online detection, long-horizon model‐monitoring, deployment pipelines, adversarial-attack tooling, and drift-dashboard UIs.
+> **TL;DR**    
+> `anml-exp` is a *pip-installable* anomaly-detection playground with locked
+> dependencies (`uv.lock`), artefact registry, strict dataset hashing, and a
+> structured hardware descriptor in benchmark outputs.  
 
-⸻
+---
 
-1 · Big Picture
+## 0 · Purpose & Non-Goals
 
-LLM-powered agents collaborate with human maintainers to
-	1.	Implement diverse anomaly-detection models (classical, deep, self-supervised).
-	2.	Expose a uniform API so models can be hot-swapped in benchmarks.
-	3.	Automate dataset ingestion, metric computation, and result logging.
-	4.	Guard code quality with lint, typing, tests, and docs.
+This repository remains a **rapid-prototyping and benchmarking framework for
+anomaly-scoring / detection algorithms**.
 
-Everything else—including production serving, online radiators, or attack toolkits—is outside this spec.
+Out of scope:
 
-⸻
+* Streaming / online detection
+* Production serving or long-horizon monitoring
+* Adversarial-attack tooling, drift dashboards, model-card generation
 
-2 · Canonical Folder Layout
+---
+
+## 1 · Big Picture
+
+LLM-powered *agents* collaborate with human maintainers to
+
+1. Implement a diverse zoo of anomaly-detection models.  
+2. Expose a **uniform API** and artefact registry for seamless benchmarking.  
+3. Automate dataset ingestion (SHA-256 verified), metric computation, and
+   result logging.  
+4. Guard code quality with linting, typing, tests, docs, and a locked
+   dependency graph (`uv.lock`).  
+
+---
+
+## 2 · Canonical Folder Layout
 
 .
-├── anomaly_models/          # Source code (importable)
-│   ├── __init__.py
-│   ├── base.py              # Abstract base (see §3.1)
-│   └── isolation_forest.py  # Example reference model
-├── datasets/                # Registry & loaders
-│   └── registry.py
-├── .agents/                 # LLM helper scripts (hidden from casual users)
-│   ├── builder.py
-│   ├── evaluator.py
-│   └── reviewer.py
-├── experiments/             # YAML experiment configs
-├── results/                 # Auto-generated benchmark outputs (⚠ git-ignored)
-├── tests/                   # Pytest & Hypothesis suites
-├── docs/                    # Sphinx / MkDocs source
-└── results/results-schema.json
+├── src/
+│   └── anml_exp/
+│       ├── init.py
+│       ├── models/
+│       ├── data/
+│       ├── benchmarks/
+│       ├── registry/            # NEW: model artefact versioning (#43)
+│       ├── resources/
+│       └── cli.py
+├── tests/
+├── docs/
+├── pyproject.toml
+├── uv.lock                       # NEW: reproducible dependency lockfile (#42)
+└── README.md
 
-Note: non-source artefacts (.agents/, results/) are git-ignored on fresh clones to keep the repo lean.
+> *Historic note* – the hidden `.agents/` folder mentioned in spec v0.2 has been
+> retired; helpers live in `anml_exp/benchmarks/` and `anml_exp/registry/`.
+
+---
+
+## 3 · Common Schema & Interfaces
+
+### 3.1 Base Model API
+
+Every model **must** subclass
+`anml_exp.models.base.BaseAnomalyModel` and implement:
+
+| Method / Property | Signature | Notes |
+|-------------------|-----------|-------|
+| `fit` | `def fit(self, X, y=None) -> Self` | |
+| `score_samples` | `def score_samples(self, X) -> NDArray[float]` | Higher ⇒ more anomalous. |
+| `predict` | `def predict(self, X, *, threshold=None) -> NDArray[int]` | |
+| `decision_threshold` | `@property def decision_threshold(self) -> float` | |
+| `save` / `load` | optional | Use `anml_exp.registry` for artefact versioning. |
+
+`anml_exp.registry` stores model binaries and metadata under a semantic version
+(`MAJOR.MINOR.PATCH`) with SHA-256 digests.
+
+---
+
+### 3.2 Dataset Registry
+
+```python
+from anml_exp.data import load_dataset
+
+X_train, y_train = load_dataset("kddcup99", split="train")
+
+	•	Each dataset module must declare SHA256 hashes for every file.
+	•	load_dataset verifies each hash before extraction; mismatch ⇒ HashError
+(#44).
+	•	Deterministic splits (seed = 42).
 
 ⸻
 
-3 · Common Schema & Interfaces
+3.3 Metrics & Result Schema
 
-3.1 Base Model API
-
-All models must subclass anomaly_models.base.BaseAnomalyModel and implement:
-
-Method/Property	Signature	Requirements
-fit	`def fit(self, X: ArrayLike, y: ArrayLike	None = None) -> Self`
-score_samples	def score_samples(self, X: ArrayLike) -> NDArray[float]	Higher score ⇒ more anomalous (document if inverted).
-predict	`def predict(self, X: ArrayLike, *, threshold: float	None = None) -> NDArray[int]`
-decision_threshold	@property def decision_threshold(self) -> float	May raise NotFittedError until fit succeeds.
-save / load	optional	Persist model via joblib or similar.
-
-All public APIs require PEP 604 typing and NumPy-style docstrings.
-
-3.2 Dataset Registry
-
-datasets.registry.load_dataset(name: str, split: str = "train") -> Dataset
-
-# in datasets/registry.py
-from typing import Tuple, Optional
-import numpy as np
-
-NDArray = np.ndarray
-Dataset = Tuple[NDArray, Optional[NDArray]]  # (X, y), y=None for unsupervised train
-
-Agents adding datasets must include:
-	•	Plain-English description and citation in the docstring.
-	•	Download / synth-generation code.
-	•	Deterministic split logic (seed = 42 default).
-
-3.3 Metrics & Benchmarks
-
-The evaluator computes:
+Benchmarks report:
 	•	ROC-AUC
-	•	PR-AUC / Average Precision
+	•	PR-AUC (Average Precision)
 	•	F1 @ best Youden threshold
-	•	Mean wall-time per 1 000 samples (declare hardware string: e.g. "CPU-i7-1185G7" or "GPU-A6000")
+	•	Mean wall-time per 1 000 samples
 
-Each run is stored at
-results/{exp_name}/{model_name}.json and MUST validate against results/results-schema.json.
-Minimal schema:
+Each run is saved to
+
+results/{exp_name}/{model_name}.json
+
+and must validate against
+anml_exp/resources/results-schema.json.
+
+Structured hardware descriptor (#45)
+
+"hardware": {
+  "device_type": "GPU",
+  "vendor": "NVIDIA",
+  "model": "RTX A6000",
+  "driver": "535.104",
+  "num_devices": 1,
+  "notes": "desktop workstation"
+}
+
+Minimal example
 
 {
   "$schema": "./results-schema.json",
   "dataset": "kddcup99",
   "model": "isolation_forest",
-  "n_samples": 145_586,
+  "model_version": "0.1.0",
+  "n_samples": 145586,
   "seed": 42,
-  "hardware": "CPU-i7-1185G7",
+  "hardware": {
+    "device_type": "CPU",
+    "vendor": "Intel",
+    "model": "i7-1185G7",
+    "driver": "N/A",
+    "num_devices": 1,
+    "notes": "laptop"
+  },
   "roc_auc": 0.921,
   "pr_auc": 0.604,
   "f1": 0.432,
   "threshold": 0.79,
   "fit_time": 1.23,
   "score_time": 0.02,
-  "params": {"n_estimators": 100, "max_samples": "auto"}
+  "params": {"n_estimators": 100, "max_samples": "auto"},
+  "artefact_digest": "sha256:13f0…"
 }
 
 
@@ -105,103 +148,84 @@ Minimal schema:
 
 4 · Agent Roles
 
-Agent	Intent	Typical Prompt Shape	Success Criteria (checked by Reviewer)
-Builder	Generate or extend code (models, loaders, utils).	“Implement XYZ model using this paper…”	Implements required API, passes unit tests provided by Builder.
-Evaluator	Run benchmarks & aggregate metrics—read-only on source.	“Benchmark all tree-based models on NAB”	Writes valid JSON + Markdown summary; no source diffs.
-Reviewer	Gatekeeper: static analysis, typing, docs, tests, perf smoke-run.	Triggered automatically on every PR and after merge into main.	PR passes ruff, mypy --strict, pytest, doc build, and schema validation.
+Agent	Intent	Success Criteria
+Builder	Generate / extend code (models, loaders, registry).	API compliance, passes tests, artefact registered.
+Evaluator	Run benchmarks & aggregate metrics.	JSON validates, hardware descriptor correct.
+Reviewer	Static analysis, typing, docs, tests, perf.	CI green (ruff, mypy, pytest, hash check, lock diff).
 
 
 ⸻
 
 5 · Contribution Workflow
 
-%%{init: {'theme': 'base'}}%%
 flowchart TD
-    subgraph Agent PR
-        draft["Builder → Draft PR"]
-        review["Reviewer → CI checks"]
-        maintainer["Human → Merge / Request changes"]
-    end
+    draft["Builder → Draft PR"]
+    review["Reviewer → CI checks"]
+    maintainer["Human → Merge / Request changes"]
     draft --> review --> maintainer
 
-Only humans may merge. Reviewer also re-runs on main nightly for regression safety.
+CI additionally ensures:
+	•	uv pip sync -r uv.lock produces identical env (#42).
+	•	Dataset SHA-256s match declared values (#44).
 
 ⸻
 
 6 · Coding Standards
-	•	PEP 8 via ruff; project config lives in pyproject.toml.
-	•	Type-hints everywhere; mypy --strict required.
-	•	NumPy-style docstrings; include math where relevant.
-	•	Dependencies
-
-[project]
-requires-python = ">=3.11"
-dependencies = [
-  "numpy",
-  "scipy",
-  "scikit-learn"
-]
-
-[project.optional-dependencies]
-torch = ["torch>=2.0"]
-pandas = ["pandas>=2.0"]
-plot = ["matplotlib>=3.9"]
-
+	•	Dependency lock: uv.lock is the single source of truth.
+	•	PEP 8 via ruff; PEP 561 typing (mypy --strict).
+	•	NumPy-style docstrings.
+	•	pyproject.toml + uv.lock define mandatory and optional extras.
 
 ⸻
 
 7 · Testing Strategy
-	•	Unit tests for every public method (fit, score_samples, predict).
-	•	Property-based tests (Hypothesis) for ranking invariance on synthetic blobs.
-	•	Mutation-testing (mutmut or cosmic-ray) encouraged; if mutation suite passes, strict coverage gates may be waived.
-	•	Performance smoke-test (tests/perf/) skipped in CI by default; Reviewer may run locally.
+	•	Unit + property tests.
+	•	Hash-verification tests for every dataset file.
+	•	CI fails if uv lock --check detects drift.
+	•	Perf suite (tests/perf/) skipped in CI.
 
 ⸻
 
-8 · Quick-Start Example
+8 · Installation & Quick-Start
 
-from anomaly_models.isolation_forest import IsolationForestModel
-from datasets.registry import load_dataset
-from sklearn.metrics import roc_auc_score
+# Reproducible dev install
+uv pip sync -r uv.lock
+pip install -e ".[torch,plot]"
+# After release:
+pip install anml-exp[torch,plot]
 
-# Load synthetic toy data
-X_train, _ = load_dataset("toy-blobs", split="train")
-X_test, y_test = load_dataset("toy-blobs", split="test")
+CLI:
 
-# Fit and score
-model = IsolationForestModel(n_estimators=200).fit(X_train)
-scores = model.score_samples(X_test)
+anml-exp benchmark --dataset toy-blobs \
+                   --model isolation_forest \
+                   --output results/demo.json
 
-print("ROC-AUC:", roc_auc_score(y_test, scores))
-
-Copy-paste should run as-is with pip install .[torch] skipped.
 
 ⸻
 
-9 · Road-Map (Initial)
+9 · Road-Map
 
-Milestone	Owner (Agent)	Exit Criteria
-M0 – Skeleton	Builder	Base class, dataset registry, CI pipeline, IsolationForest & LOF reference models.
-M1 – Classical Benchmark	Evaluator	Run on 3 tabular datasets; JSON + Markdown leaderboard.
-M2 – Deep Models	Builder	Implement AutoEncoder, DeepSVDD, minimalist USAD.
-M3 – Time-Series Support	Builder + Evaluator	Sliding-window loader + Matrix-Profile (STOMP) + point-wise z-score detector baseline.
+Milestone	Owner	Exit Criteria
+M0 – Skeleton	Builder	Base class, dataset registry (SHA-256), artefact registry, CI, uv.lock.
+M1 – Classical Benchmark	Evaluator	3 tabular datasets; JSON outputs pass new schema.
+M2 – Deep Models	Builder	AutoEncoder, DeepSVDD, USAD registered & versioned.
+M3 – Time-Series Support	Builder + Evaluator	Loader + STOMP baseline + benchmarks.
 
 
 ⸻
 
 10 · Open Questions
-	1.	Unified config system now (omegaconf) or later?
-	2.	Preferred experiment tracker for agents (mlflow, wandb, plain JSON)?
-	3.	CPU vs GPU determinism in CI—pin BLAS libraries or skip perf tests?
-	4.	Sandboxing policy for code-gen agents: Docker-only, --no-network, and syscall allow-list?
+	1.	Unified config system (omegaconf) – still pending.
+	2.	Preferred experiment tracker (mlflow, wandb, plain JSON).
+	3.	CPU vs GPU determinism in CI.
+	4.	Sandboxing policy for code-gen agents.
 
 ⸻
 
 11 · Meta
-	•	results-schema.json provides a machine-readable contract for benchmark outputs.
-	•	See CONTRIBUTING.md for a human-targeted recap of workflow & coding style.
-	•	Spec updates must bump spec_version and include a changelog entry.
+	•	_spec_version bumped → 0.3.1 (adds #42–#45).
+	•	See CONTRIBUTING.md for human-targeted guidelines.
+	•	results-schema.json is the machine-readable contract.
 
-⸻
+Last updated – 2025-07-20 @ 20:55 AEST
 
-Last updated – 2025-07-20 @ 11:00 AEST.
