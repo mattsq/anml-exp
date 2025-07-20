@@ -4,6 +4,7 @@ from .base import BaseAnomalyModel
 from .isolation_forest import IsolationForestModel
 from .local_outlier_factor import LocalOutlierFactorModel
 from .one_class_svm import OneClassSVMModel
+from .pca_detector import PCAAnomalyModel
 
 __all__ = [
     "BaseAnomalyModel",
@@ -11,4 +12,5 @@ __all__ = [
     "LocalOutlierFactorModel",
     "OneClassSVMModel",
     "AutoEncoderModel",
+    "PCAAnomalyModel",
 ]

@@ -20,6 +20,7 @@ from anomaly_models import (
     IsolationForestModel,
     LocalOutlierFactorModel,
     OneClassSVMModel,
+    PCAAnomalyModel,
 )
 from datasets.registry import load_dataset
 
@@ -28,6 +29,7 @@ MODEL_REGISTRY: dict[str, type[BaseAnomalyModel]] = {
     "isolation_forest": IsolationForestModel,
     "local_outlier_factor": LocalOutlierFactorModel,
     "one_class_svm": OneClassSVMModel,
+    "pca": PCAAnomalyModel,
 }
 
 

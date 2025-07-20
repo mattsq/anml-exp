@@ -11,6 +11,7 @@ from anomaly_models import (
     IsolationForestModel,
     LocalOutlierFactorModel,
     OneClassSVMModel,
+    PCAAnomalyModel,
 )
 
 
@@ -44,3 +45,7 @@ def test_one_class_svm() -> None:
 
 def test_autoencoder() -> None:
     _check_model(AutoEncoderModel(n_epochs=2))
+
+
+def test_pca_anomaly() -> None:
+    _check_model(PCAAnomalyModel())
