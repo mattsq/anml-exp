@@ -30,3 +30,9 @@ python_version = "3.11"
 strict = true
 mypy_path = ["."]
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"anml_exp.resources" = ["results-schema.json"]
+

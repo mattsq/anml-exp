@@ -4,8 +4,8 @@ import numpy as np
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from anomaly_models import IsolationForestModel
-from datasets.registry import load_dataset
+from anml_exp.data import load_dataset
+from anml_exp.models import IsolationForestModel
 
 
 @given(

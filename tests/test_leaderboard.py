@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from evaluator import run_benchmark
-from leaderboard import write_leaderboard
+from anml_exp.benchmarks.evaluator import run_benchmark
+from anml_exp.benchmarks.leaderboard import write_leaderboard
 
 
 @pytest.mark.skipif(pytest.importorskip("pandas") is None, reason="requires pandas")

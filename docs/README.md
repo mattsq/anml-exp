@@ -2,10 +2,10 @@
 
 ## Loading datasets
 
-Use :func:`datasets.registry.load_dataset` to obtain deterministic splits. The
+Use :func:`anml_exp.data.load_dataset` to obtain deterministic splits. The
 example below fetches the synthetic ``toy-blobs`` data::
 
-    from datasets.registry import load_dataset
+    from anml_exp.data import load_dataset
 
     X_train, _ = load_dataset("toy-blobs", split="train")
     X_test, y_test = load_dataset("toy-blobs", split="test")
@@ -14,7 +14,7 @@ example below fetches the synthetic ``toy-blobs`` data::
 
 The benchmark runner can be invoked from the command line::
 
-    python evaluator.py \
+    python -m anml_exp.cli benchmark \
         --dataset toy-blobs \
         --model isolation_forest \
         --output results/example.json
@@ -29,19 +29,19 @@ The benchmark runner can be invoked from the command line::
 - ``deep_svdd``
 - ``usad``
 
-This writes a JSON file compatible with ``results/results-schema.json``.
+This writes a JSON file compatible with ``anml_exp/resources/results-schema.json``.
 
 ## Leaderboard
 
-Use `leaderboard.py` to benchmark all built-in tabular datasets and aggregate the results into a Markdown table::
+Use the ``leaderboard`` command to benchmark all built-in tabular datasets and aggregate the results into a Markdown table::
 
-    python leaderboard.py --hardware CPU-unknown
+    python -m anml_exp.cli leaderboard --hardware CPU-unknown
 
 
 ## Available datasets
 
 The following dataset identifiers can be passed to
-``datasets.registry.load_dataset``:
+``anml_exp.data.load_dataset``:
 
 - ``toy-blobs``
 - ``toy-circles``
