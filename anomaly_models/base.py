@@ -5,9 +5,11 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import numpy as np
+from numpy.typing import ArrayLike as NPTArrayLike
+from numpy.typing import NDArray
 
-ArrayLike = np.ndarray
-NDArray = np.ndarray
+ArrayLike = NPTArrayLike
+NDArrayF = NDArray[np.float64]
 
 
 class BaseAnomalyModel(ABC):
@@ -21,11 +23,11 @@ class BaseAnomalyModel(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def score_samples(self, X: ArrayLike) -> NDArray:
+    def score_samples(self, X: ArrayLike) -> NDArrayF:
         """Compute anomaly scores for ``X``."""
         raise NotImplementedError
 
-    def predict(self, X: ArrayLike, *, threshold: float | None = None) -> NDArray:
+    def predict(self, X: ArrayLike, *, threshold: float | None = None) -> NDArrayF:
         """Predict binary labels using ``threshold`` or ``self.decision_threshold``."""
         if threshold is None:
             threshold = self.decision_threshold

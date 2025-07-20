@@ -4,11 +4,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
+import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
-from .base import ArrayLike, BaseAnomalyModel, NDArray
+from .base import ArrayLike, BaseAnomalyModel, NDArrayF
 
 
 @dataclass
@@ -53,13 +54,14 @@ class AutoEncoderModel(BaseAnomalyModel):
     def fit(
         self, X: ArrayLike, y: Optional[ArrayLike] | None = None
     ) -> "AutoEncoderModel":
-        self.input_dim = int(X.shape[1])
+        X_arr = np.asarray(X, dtype=np.float64)
+        self.input_dim = int(X_arr.shape[1])
         device = self.cfg.device or (
             "cuda" if torch.cuda.is_available() else "cpu"
         )
         self.model = self._build_model(self.input_dim).to(device)
         optimiser = torch.optim.Adam(self.model.parameters(), lr=self.cfg.lr)
-        dataset = TensorDataset(torch.tensor(X, dtype=torch.float32))
+        dataset = TensorDataset(torch.tensor(X_arr, dtype=torch.float32))
         loader = DataLoader(dataset, batch_size=self.cfg.batch_size, shuffle=True)
         self.model.train()
         for _ in range(self.cfg.n_epochs):
@@ -73,7 +75,7 @@ class AutoEncoderModel(BaseAnomalyModel):
         self.model.eval()
         return self
 
-    def score_samples(self, X: ArrayLike) -> NDArray:
+    def score_samples(self, X: ArrayLike) -> NDArrayF:
         if self.model is None:
             raise RuntimeError("Model not fitted")
         device = next(self.model.parameters()).device
@@ -81,7 +83,8 @@ class AutoEncoderModel(BaseAnomalyModel):
         with torch.no_grad():
             recon = self.model(tensor_X)
             errors = torch.mean((recon - tensor_X) ** 2, dim=1)
-        return errors.cpu().numpy()
+        out: NDArrayF = errors.cpu().numpy()
+        return out
 
     @property
     def decision_threshold(self) -> float:

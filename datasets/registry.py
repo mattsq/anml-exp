@@ -1,12 +1,12 @@
 """Dataset registry and loaders."""
 from __future__ import annotations
 
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import numpy as np
 from sklearn.datasets import make_blobs  # type: ignore[import-untyped]
 
-NDArray = np.ndarray
+NDArray = np.ndarray[Any, np.dtype[np.float64]]
 Dataset = Tuple[NDArray, Optional[NDArray]]
 
 
@@ -152,10 +152,68 @@ def _breast_cancer(split: str, *, seed: int) -> Dataset:
     raise KeyError(f"Unknown split: {split}")
 
 
+def _nab_art_daily(split: str, *, seed: int) -> Dataset:
+    """NAB artificial daily dataset using a 24-sample sliding window."""
+
+    import io
+    import json
+    import urllib.request
+
+    from numpy.lib.stride_tricks import sliding_window_view
+
+    base_url = (
+        "https://raw.githubusercontent.com/numenta/NAB/master/data/"
+    )
+    label_url = (
+        "https://raw.githubusercontent.com/numenta/NAB/master/labels/"
+        "combined_windows.json"
+    )
+
+    def _load_series(path: str) -> tuple[np.ndarray, np.ndarray]:  # type: ignore[type-arg]
+        url = base_url + path
+        with urllib.request.urlopen(url) as resp:
+            text = resp.read().decode("utf-8")
+        arr = np.genfromtxt(
+            io.StringIO(text),
+            delimiter=",",
+            skip_header=1,
+            dtype=[("ts", "datetime64[m]"), ("val", "f8")],
+        )
+        return arr["ts"], arr["val"].astype(np.float64)
+
+    ts, values = _load_series(
+        "artificialNoAnomaly/art_daily_small_noise.csv"
+        if split == "train"
+        else "artificialWithAnomaly/art_daily_jumpsup.csv"
+    )
+
+    windows = sliding_window_view(values, 24)
+    X = windows.astype(np.float64)
+
+    if split == "train":
+        return X, None
+
+    with urllib.request.urlopen(label_url) as resp:
+        all_labels = json.load(resp)
+    win_labels = all_labels.get(
+        "artificialWithAnomaly/art_daily_jumpsup.csv",
+        [],
+    )
+    mask = np.zeros(len(ts), dtype=bool)
+    for start, end in win_labels:
+        start_ts = np.datetime64(start)
+        end_ts = np.datetime64(end)
+        mask |= (ts >= start_ts) & (ts <= end_ts)
+
+    y = sliding_window_view(mask.astype(int), 24).max(axis=1)
+    return X, y.astype(int)
+
+
 _REGISTRY = {
     "toy-blobs": _toy_blobs,
     "toy-circles": _toy_circles,
     "breast-cancer": _breast_cancer,
+    "nab-art-daily": _nab_art_daily,
 }
 
 

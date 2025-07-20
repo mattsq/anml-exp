@@ -10,6 +10,7 @@ from anomaly_models import (
     AutoEncoderModel,
     IsolationForestModel,
     LocalOutlierFactorModel,
+    MatrixProfileModel,
     OneClassSVMModel,
     PCAAnomalyModel,
 )
@@ -49,3 +50,13 @@ def test_autoencoder() -> None:
 
 def test_pca_anomaly() -> None:
     _check_model(PCAAnomalyModel())
+
+
+def test_matrix_profile() -> None:
+    model = MatrixProfileModel(window_size=3)
+    X = _toy_data()
+    fitted = model.fit(X)
+    assert fitted is model
+    scores = model.score_samples(X)
+    expected = X.size - model.window_size + 1
+    assert scores.shape[0] == expected

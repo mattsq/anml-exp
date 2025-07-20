@@ -5,7 +5,7 @@ from typing import Optional
 
 from sklearn.svm import OneClassSVM  # type: ignore[import-untyped]
 
-from .base import ArrayLike, BaseAnomalyModel, NDArray
+from .base import ArrayLike, BaseAnomalyModel, NDArrayF
 
 
 class OneClassSVMModel(BaseAnomalyModel):
@@ -21,8 +21,8 @@ class OneClassSVMModel(BaseAnomalyModel):
         self.model.fit(X)
         return self
 
-    def score_samples(self, X: ArrayLike) -> NDArray:
-        scores: NDArray = -self.model.decision_function(X)
+    def score_samples(self, X: ArrayLike) -> NDArrayF:
+        scores: NDArrayF = -self.model.decision_function(X)
         return scores
 
     @property

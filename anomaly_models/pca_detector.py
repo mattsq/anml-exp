@@ -6,7 +6,7 @@ from typing import Optional
 import numpy as np
 from sklearn.decomposition import PCA  # type: ignore[import-untyped]
 
-from .base import ArrayLike, BaseAnomalyModel, NDArray
+from .base import ArrayLike, BaseAnomalyModel, NDArrayF
 
 
 class PCAAnomalyModel(BaseAnomalyModel):
@@ -22,10 +22,10 @@ class PCAAnomalyModel(BaseAnomalyModel):
         self.model.fit(X)
         return self
 
-    def score_samples(self, X: ArrayLike) -> NDArray:
+    def score_samples(self, X: ArrayLike) -> NDArrayF:
         transformed = self.model.transform(X)
         recon = self.model.inverse_transform(transformed)
-        errors: NDArray = np.mean((X - recon) ** 2, axis=1)
+        errors: NDArrayF = np.mean((X - recon) ** 2, axis=1)
         return errors
 
     @property
