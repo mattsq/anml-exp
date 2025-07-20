@@ -6,7 +6,11 @@ import numpy as np
 from numpy.typing import NDArray
 from sklearn.datasets import make_blobs  # type: ignore[import-untyped]
 
-from anomaly_models import IsolationForestModel, LocalOutlierFactorModel
+from anomaly_models import (
+    IsolationForestModel,
+    LocalOutlierFactorModel,
+    OneClassSVMModel,
+)
 
 
 def _toy_data() -> NDArray[np.float64]:
@@ -31,3 +35,7 @@ def test_isolation_forest() -> None:
 
 def test_local_outlier_factor() -> None:
     _check_model(LocalOutlierFactorModel())
+
+
+def test_one_class_svm() -> None:
+    _check_model(OneClassSVMModel())

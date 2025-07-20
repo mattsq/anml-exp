@@ -19,4 +19,10 @@ The benchmark runner can be invoked from the command line::
         --model isolation_forest \
         --output results/example.json
 
+## Available models
+
+- ``isolation_forest``
+- ``local_outlier_factor``
+- ``one_class_svm``
+
 This writes a JSON file compatible with ``results/results-schema.json``.
