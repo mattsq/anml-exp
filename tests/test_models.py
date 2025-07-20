@@ -8,10 +8,12 @@ from sklearn.datasets import make_blobs  # type: ignore[import-untyped]
 
 from anomaly_models import (
     AutoEncoderModel,
+    DeepSVDDModel,
     IsolationForestModel,
     LocalOutlierFactorModel,
     OneClassSVMModel,
     PCAAnomalyModel,
+    USADModel,
 )
 
 
@@ -49,3 +51,11 @@ def test_autoencoder() -> None:
 
 def test_pca_anomaly() -> None:
     _check_model(PCAAnomalyModel())
+
+
+def test_deep_svdd() -> None:
+    _check_model(DeepSVDDModel(n_epochs=2))
+
+
+def test_usad_model() -> None:
+    _check_model(USADModel(n_epochs=2))

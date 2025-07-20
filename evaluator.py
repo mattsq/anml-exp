@@ -17,10 +17,12 @@ from sklearn.metrics import (  # type: ignore[import-untyped]
 
 from anomaly_models import (
     BaseAnomalyModel,
+    DeepSVDDModel,
     IsolationForestModel,
     LocalOutlierFactorModel,
     OneClassSVMModel,
     PCAAnomalyModel,
+    USADModel,
 )
 from datasets.registry import load_dataset
 
@@ -30,6 +32,8 @@ MODEL_REGISTRY: dict[str, type[BaseAnomalyModel]] = {
     "local_outlier_factor": LocalOutlierFactorModel,
     "one_class_svm": OneClassSVMModel,
     "pca": PCAAnomalyModel,
+    "deep_svdd": DeepSVDDModel,
+    "usad": USADModel,
 }
 
 
