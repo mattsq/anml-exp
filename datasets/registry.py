@@ -61,7 +61,56 @@ def _toy_blobs(split: str, *, seed: int) -> Dataset:
     raise KeyError(f"Unknown split: {split}")
 
 
-_REGISTRY = {"toy-blobs": _toy_blobs}
+
+def _toy_circles(split: str, *, seed: int) -> Dataset:
+    """Synthetic concentric circles classification toy dataset.
+
+    The training split consists solely of the inner circle, representing
+    normal observations. The test split contains an equal number of points
+    from both the inner circle and the outer ring. Points on the outer ring
+    are labelled as anomalies.
+
+    Data are generated via :func:`sklearn.datasets.make_circles` and are fully
+    deterministic given ``seed``.
+
+    References
+    ----------
+    * F. Pedregosa et al., "Scikit-learn: Machine Learning in Python",
+      Journal of Machine Learning Research, 2011.
+    """
+
+    from sklearn.datasets import make_circles
+
+    rng = np.random.default_rng(seed)
+
+    if split == "train":
+        X, y = make_circles(
+            n_samples=200,
+            noise=0.05,
+            factor=0.3,
+            random_state=rng.integers(0, 2**32 - 1),
+        )
+        X_inner = X[y == 1]
+        return X_inner.astype(np.float64), None
+
+    if split == "test":
+        X, y = make_circles(
+            n_samples=200,
+            noise=0.05,
+            factor=0.3,
+            random_state=rng.integers(0, 2**32 - 1),
+        )
+        # points on the outer ring are anomalies
+        y = (y == 0).astype(int)
+        return X.astype(np.float64), y
+
+    raise KeyError(f"Unknown split: {split}")
+
+
+_REGISTRY = {
+    "toy-blobs": _toy_blobs,
+    "toy-circles": _toy_circles,
+}
 
 
 def load_dataset(name: str, split: str = "train", *, seed: int = 42) -> Dataset:
