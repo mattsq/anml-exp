@@ -5,7 +5,7 @@ from typing import Optional
 
 from sklearn.neighbors import LocalOutlierFactor  # type: ignore[import-untyped]
 
-from .base import BaseAnomalyModel, ArrayLike, NDArray
+from .base import ArrayLike, BaseAnomalyModel, NDArray
 
 
 class LocalOutlierFactorModel(BaseAnomalyModel):
@@ -16,7 +16,9 @@ class LocalOutlierFactorModel(BaseAnomalyModel):
         self.model = LocalOutlierFactor(novelty=True, **params)
         self._threshold: float | None = None
 
-    def fit(self, X: ArrayLike, y: Optional[ArrayLike] | None = None) -> "LocalOutlierFactorModel":
+    def fit(
+        self, X: ArrayLike, y: Optional[ArrayLike] | None = None
+    ) -> "LocalOutlierFactorModel":
         self.model.fit(X)
         return self
 
