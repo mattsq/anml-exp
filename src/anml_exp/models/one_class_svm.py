@@ -25,11 +25,4 @@ class OneClassSVMModel(BaseAnomalyModel):
         scores: NDArray = -self.model.decision_function(X)
         return scores
 
-    @property
-    def decision_threshold(self) -> float:
-        if self._threshold is None:
-            raise RuntimeError("Model has no threshold set")
-        return self._threshold
 
-    def set_threshold(self, value: float) -> None:
-        self._threshold = value

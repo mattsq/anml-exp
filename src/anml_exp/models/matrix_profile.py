@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Optional, cast
 
 import numpy as np
-import stumpy  # type: ignore[import-untyped]
+import stumpy  # type: ignore[import-not-found]
 
 from .base import ArrayLike, BaseAnomalyModel, NDArray
 
@@ -41,11 +41,4 @@ class MatrixProfileModel(BaseAnomalyModel):
         start = len(self.series_) - self.window_size + 1
         return profile[start : start + len(X)]
 
-    @property
-    def decision_threshold(self) -> float:
-        if self._threshold is None:
-            raise RuntimeError("Model has no threshold set")
-        return self._threshold
 
-    def set_threshold(self, value: float) -> None:
-        self._threshold = value

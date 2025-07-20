@@ -99,11 +99,4 @@ class DeepSVDDModel(BaseAnomalyModel):
             dist = torch.mean((feats - self.center) ** 2, dim=1)
         return np.asarray(dist.cpu().numpy(), dtype=np.float64)
 
-    @property
-    def decision_threshold(self) -> float:
-        if self._threshold is None:
-            raise RuntimeError("Model has no threshold set")
-        return self._threshold
 
-    def set_threshold(self, value: float) -> None:
-        self._threshold = value
