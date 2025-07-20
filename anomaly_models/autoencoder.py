@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
+import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -81,7 +82,7 @@ class AutoEncoderModel(BaseAnomalyModel):
         with torch.no_grad():
             recon = self.model(tensor_X)
             errors = torch.mean((recon - tensor_X) ** 2, dim=1)
-        return errors.cpu().numpy()
+        return np.asarray(errors.cpu().numpy(), dtype=np.float64)
 
     @property
     def decision_threshold(self) -> float:

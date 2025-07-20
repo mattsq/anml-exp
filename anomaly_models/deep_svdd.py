@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
+import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -96,7 +97,7 @@ class DeepSVDDModel(BaseAnomalyModel):
         with torch.no_grad():
             feats = self.model(tensor_X)
             dist = torch.mean((feats - self.center) ** 2, dim=1)
-        return dist.cpu().numpy()
+        return np.asarray(dist.cpu().numpy(), dtype=np.float64)
 
     @property
     def decision_threshold(self) -> float:
