@@ -20,6 +20,7 @@ from anomaly_models import (
     DeepSVDDModel,
     IsolationForestModel,
     LocalOutlierFactorModel,
+    MatrixProfileModel,
     OneClassSVMModel,
     PCAAnomalyModel,
     USADModel,
@@ -34,6 +35,7 @@ MODEL_REGISTRY: dict[str, type[BaseAnomalyModel]] = {
     "pca": PCAAnomalyModel,
     "deep_svdd": DeepSVDDModel,
     "usad": USADModel,
+    "matrix_profile": MatrixProfileModel,
 }
 
 

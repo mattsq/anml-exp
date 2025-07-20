@@ -127,3 +127,14 @@ def test_digits_shapes() -> None:
     assert y_test is not None
     assert y_test.ndim == 1
 
+
+def test_nab_twitter_aapl_shapes() -> None:
+    X_train, y_train = load_dataset("nab-twitter-aapl", split="train")
+    X_test, y_test = load_dataset("nab-twitter-aapl", split="test")
+
+    assert y_train is None
+    assert X_train.shape[1] == 24
+    assert X_test.shape[1] == 24
+    assert y_test is not None
+    assert y_test.shape == (X_test.shape[0],)
+
