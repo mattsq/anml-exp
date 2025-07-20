@@ -1,5 +1,14 @@
 # Documentation
 
+## Installation
+
+Create the Python environment from the lock file before installing the project:
+
+```bash
+uv pip sync -r uv.lock
+pip install -e ".[torch,plot]"
+```
+
 ## Loading datasets
 
 Use :func:`anml_exp.data.load_dataset` to obtain deterministic splits. The
