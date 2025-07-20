@@ -26,3 +26,12 @@ The benchmark runner can be invoked from the command line::
 - ``one_class_svm``
 
 This writes a JSON file compatible with ``results/results-schema.json``.
+
+## Available datasets
+
+The following dataset identifiers can be passed to
+``datasets.registry.load_dataset``:
+
+- ``toy-blobs``
+- ``toy-circles``
+- ``breast-cancer``

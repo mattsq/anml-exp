@@ -107,9 +107,55 @@ def _toy_circles(split: str, *, seed: int) -> Dataset:
     raise KeyError(f"Unknown split: {split}")
 
 
+def _breast_cancer(split: str, *, seed: int) -> Dataset:
+    """Breast Cancer Wisconsin (Diagnostic) dataset.
+
+    Benign samples are treated as normal data and malignant samples as
+    anomalies. The training split contains only benign cases. The test
+    split is a stratified 20% hold-out containing both classes.
+
+    Data are loaded via :func:`sklearn.datasets.load_breast_cancer` and the
+    split is performed deterministically using
+    :func:`sklearn.model_selection.train_test_split` with ``seed``.
+
+    References
+    ----------
+    * W. N. Street, W. H. Wolberg, and O. L. Mangasarian,
+      "Nuclear feature extraction for breast tumor diagnosis," IS&T/SPIE,
+      1993.
+    * D. Dua and C. Graff, "UCI Machine Learning Repository", 2019.
+    """
+
+    from sklearn.datasets import load_breast_cancer
+    from sklearn.model_selection import train_test_split  # type: ignore[import-untyped]
+
+    rng = np.random.default_rng(seed)
+
+    X, y = load_breast_cancer(return_X_y=True)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=rng.integers(0, 2**32 - 1),
+        stratify=y,
+    )
+
+    if split == "train":
+        X_norm = X_train[y_train == 1]
+        return X_norm.astype(np.float64), None
+
+    if split == "test":
+        y_test_anom = (y_test == 0).astype(int)
+        return X_test.astype(np.float64), y_test_anom
+
+    raise KeyError(f"Unknown split: {split}")
+
+
 _REGISTRY = {
     "toy-blobs": _toy_blobs,
     "toy-circles": _toy_circles,
+    "breast-cancer": _breast_cancer,
 }
 
 
