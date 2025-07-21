@@ -7,7 +7,7 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-import pandas as pd
+import pandas as pd  # type: ignore[import-untyped]
 
 from .evaluator import _normalize_hardware, run_benchmark
 
@@ -25,7 +25,7 @@ SCHEMA_PATH = files("anml_exp.resources").joinpath("results-schema.json")
 
 def _validate(result: dict[str, Any]) -> None:
     """Validate ``result`` against ``results-schema.json``."""
-    import jsonschema
+    import jsonschema  # type: ignore[import-untyped]
 
     schema = json.loads(SCHEMA_PATH.read_text())
     jsonschema.validate(result, schema)
