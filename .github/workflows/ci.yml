@@ -36,7 +36,7 @@ jobs:
       run: |
         python -m venv .venv
         . .venv/bin/activate
-        uv sync --frozen
+        uv sync --frozen --extra dev --extra torch
         echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
 
     - name: Install dependencies
@@ -45,7 +45,7 @@ jobs:
       run: |
         . .venv/bin/activate
         python -m pip install --upgrade pip
-        uv sync --frozen
+        uv sync --frozen --extra dev --extra torch
 
     - name: Download datasets
       run: |
