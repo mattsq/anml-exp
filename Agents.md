@@ -1,4 +1,4 @@
-# Agents.md   ― spec _version: **0.3.2**  (2025-07-21)
+# Agents.md   ― spec _version: **0.3.3**  (2025-07-21)
 
 > **TL;DR**    
 > `anml-exp` is a *pip-installable* anomaly-detection playground with locked
@@ -173,6 +173,8 @@ CI additionally ensures:
 6 · Coding Standards
 	•	Dependency lock: uv.lock is the single source of truth.
 	•	PEP 8 via ruff; PEP 561 typing (mypy --strict).
+        •       Speed up mypy in CI by caching `.mypy_cache` and installing
+                `mypy[faster-cache]` wheels only.
 	•	NumPy-style docstrings.
 	•	pyproject.toml + uv.lock define mandatory and optional extras.
 
@@ -223,7 +225,7 @@ M3 – Time-Series Support	Builder + Evaluator	Loader + STOMP baseline + benchma
 ⸻
 
 11 · Meta
-	•	_spec_version bumped → 0.3.1 (adds #42–#45).
+	•	_spec_version bumped → 0.3.3 (adds #42–#45).
 	•	See CONTRIBUTING.md for human-targeted guidelines.
 	•	results-schema.json is the machine-readable contract.
 

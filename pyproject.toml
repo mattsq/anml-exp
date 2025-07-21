@@ -22,7 +22,7 @@ plot = ["matplotlib>=3.9"]
 ts = ["stumpy>=1.11"]
 dev = [
     "ruff",
-    "mypy",
+    "mypy[faster-cache]",
     "pytest",
     "pytest-xdist",
     "pandas-stubs",
