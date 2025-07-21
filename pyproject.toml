@@ -31,6 +31,9 @@ dev = [
     "tabulate",
 ]
 
+[project.scripts]
+anml-exp = "anml_exp.cli:main"
+
 [tool.ruff]
 line-length = 88
 select = ["E", "F", "I"]
@@ -38,7 +41,7 @@ select = ["E", "F", "I"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
-mypy_path = ["."]
+mypy_path = ["src"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

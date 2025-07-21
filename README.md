@@ -13,11 +13,11 @@ pip install -e ".[torch,plot]"
 
 ## Benchmarking
 
-Run ``anml_exp.cli`` to execute a benchmark and produce a JSON result
-conforming to ``anml_exp/resources/results-schema.json``.
+Run the ``anml-exp`` command to execute a benchmark and produce a JSON
+result conforming to ``anml_exp/resources/results-schema.json``.
 
 ```bash
-python -m anml_exp.cli benchmark \
+anml-exp benchmark \
     --dataset toy-blobs \
     --model isolation_forest \
     --output results/example.json
@@ -29,5 +29,5 @@ Run the ``leaderboard`` command to benchmark all built-in tabular datasets and
 generate a Markdown leaderboard. Results are stored under ``results/leaderboard``.
 
 ```bash
-python -m anml_exp.cli leaderboard --hardware '{"device_type":"CPU","vendor":"unknown","model":"unknown","driver":"N/A","num_devices":1,"notes":"example"}'
+anml-exp leaderboard --hardware '{"device_type":"CPU","vendor":"unknown","model":"unknown","driver":"N/A","num_devices":1,"notes":"example"}'
 ```

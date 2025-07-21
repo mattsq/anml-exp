@@ -4,12 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from anml_exp.benchmarks.evaluator import run_benchmark
-from anml_exp.benchmarks.leaderboard import write_leaderboard
-
 
 @pytest.mark.skipif(pytest.importorskip("pandas") is None, reason="requires pandas")
 def test_write_leaderboard(tmp_path: Path) -> None:
+    from anml_exp.benchmarks.evaluator import run_benchmark
+    from anml_exp.benchmarks.leaderboard import write_leaderboard
+    pytest.importorskip("tabulate")
     result = run_benchmark(
         dataset="toy-blobs",
         model_name="isolation_forest",

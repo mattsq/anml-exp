@@ -5,14 +5,15 @@ import os
 from importlib.resources import files
 from pathlib import Path
 
-import jsonschema  # type: ignore[import-untyped]
 import pytest
 
-from anml_exp.benchmarks.evaluator import run_benchmark
+jsonschema = pytest.importorskip("jsonschema")
 
 
 @pytest.mark.skipif(os.getenv("RUN_PERF") != "1", reason="Perf test")
 def test_matrix_profile_perf(tmp_path: Path) -> None:
+    pytest.importorskip("stumpy")
+    from anml_exp.benchmarks.evaluator import run_benchmark
     out = tmp_path / "result.json"
     result = run_benchmark(
         dataset="nab-twitter-aapl",

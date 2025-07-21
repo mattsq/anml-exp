@@ -1,20 +1,23 @@
 from __future__ import annotations
 
 import numpy as np
-from hypothesis import given, settings
+import pytest
+
+pytest.importorskip("hypothesis")
+from hypothesis import given, settings  # type: ignore[import-not-found]
 from hypothesis import strategies as st
 
 from anml_exp.data import load_dataset
 from anml_exp.models import IsolationForestModel
 
 
-@given(
+@given(  # type: ignore[misc]
     seed=st.integers(0, 1000),
     scale=st.floats(0.5, 3.0, allow_nan=False, allow_infinity=False),
     dx=st.floats(-5, 5, allow_nan=False, allow_infinity=False),
     dy=st.floats(-5, 5, allow_nan=False, allow_infinity=False),
 )
-@settings(max_examples=10, deadline=None)
+@settings(max_examples=10, deadline=None)  # type: ignore[misc]
 def test_ranking_invariance(seed: int, scale: float, dx: float, dy: float) -> None:
     """Anomaly score ordering should be invariant to affine transforms."""
     X_train, _ = load_dataset("toy-blobs", split="train", seed=seed)

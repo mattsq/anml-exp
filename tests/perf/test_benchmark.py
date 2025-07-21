@@ -5,16 +5,16 @@ import os
 from importlib.resources import files
 from pathlib import Path
 
-import jsonschema  # type: ignore[import-untyped]
 import pytest
 
-from anml_exp.benchmarks.evaluator import run_benchmark
+jsonschema = pytest.importorskip("jsonschema")
 
 
 @pytest.mark.skipif(os.getenv("RUN_PERF") != "1", reason="Perf test")
 def test_benchmark_smoke(tmp_path: Path) -> None:
     """Run a lightweight benchmark and validate schema."""
     out = tmp_path / "result.json"
+    from anml_exp.benchmarks.evaluator import run_benchmark
     result = run_benchmark(
         dataset="toy-blobs",
         model_name="isolation_forest",
