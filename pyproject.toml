@@ -45,4 +45,5 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "anml_exp.resources" = ["results-schema.json"]
+"anml_exp.data" = ["datasets/*"]
 

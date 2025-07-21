@@ -1,7 +1,11 @@
-"""Dataset registry and loaders."""
+"""Dataset registry and loading utilities with hash verification."""
 from __future__ import annotations
 
-from typing import Optional, Tuple
+import hashlib
+import json
+import urllib.request
+from pathlib import Path
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 from numpy.typing import NDArray as _NDArray
@@ -11,23 +15,125 @@ NDArray = _NDArray[np.float64]
 Dataset = Tuple[NDArray, Optional[NDArray]]
 
 
+class HashError(RuntimeError):
+    """Raised when a dataset file fails its hash check."""
+
+
+# Pre-computed SHA-256 digests for files under ``datasets``
+_FILE_HASHES: Dict[str, str] = {
+    "breast_cancer.npz": (
+        "2402285ebb2134863dfb40ffce13904d3f0bae1a81ba53c27339086f80b2490e"
+    ),
+    "wine.npz": (
+        "adc597add63eb9e88a4fc555a9829d01577ac6f72815701a447bb20d8b6675a6"
+    ),
+    "digits.npz": (
+        "6952bf8d305ecf99f1e65db39af0ba46ce6b72df49a5f695bc1c935c5e7e074b"
+    ),
+    "Twitter_volume_AAPL.csv": (
+        "826f5cf404c2890784a7824f7102fd00cb134a4948e12e44ec320d095cbbc217"
+    ),
+    "nab_labels.json": (
+        "2dc6fbccfae40e45e066badad2b8ff365f16a907a8f4be8fdfcd3ada955a99b9"
+    ),
+}
+
+_DATA_URLS: Dict[str, str] = {
+    "Twitter_volume_AAPL.csv": (
+        "https://raw.githubusercontent.com/numenta/NAB/master/data/realTweets/"
+        "Twitter_volume_AAPL.csv"
+    ),
+}
+
+
+def _sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+_DATA_DIR = Path(__file__).resolve().parent / "datasets"
+
+
+def _dataset_path(filename: str) -> Path:
+    return _DATA_DIR / filename
+
+
+def _download(url: str, dst: Path) -> None:
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    with urllib.request.urlopen(url) as r, dst.open("wb") as f:
+        f.write(r.read())
+
+
+def _make_breast_cancer(path: Path) -> None:
+    from sklearn.datasets import load_breast_cancer
+
+    data = load_breast_cancer()
+    np.savez_compressed(path, X=data.data.astype(np.float64), y=data.target)
+
+
+def _make_wine(path: Path) -> None:
+    from sklearn.datasets import load_wine
+
+    data = load_wine()
+    np.savez_compressed(path, X=data.data.astype(np.float64), y=data.target)
+
+
+def _make_digits(path: Path) -> None:
+    from sklearn.datasets import load_digits
+
+    data = load_digits()
+    np.savez_compressed(path, X=data.data.astype(np.float64), y=data.target)
+
+
+def _make_nab_labels(path: Path) -> None:
+    url = (
+        "https://raw.githubusercontent.com/numenta/NAB/master/labels/"
+        "combined_labels.json"
+    )
+    with urllib.request.urlopen(url) as r:
+        data = json.load(r)
+    text = json.dumps(data, separators=(", ", ": "))
+    path.write_text(text)
+
+
+def _ensure_file(filename: str) -> Path:
+    path = _dataset_path(filename)
+    if path.exists():
+        return path
+
+    if filename == "breast_cancer.npz":
+        _make_breast_cancer(path)
+    elif filename == "wine.npz":
+        _make_wine(path)
+    elif filename == "digits.npz":
+        _make_digits(path)
+    elif filename == "nab_labels.json":
+        _make_nab_labels(path)
+    elif filename in _DATA_URLS:
+        _download(_DATA_URLS[filename], path)
+    else:  # pragma: no cover - defensive
+        raise KeyError(f"Unknown dataset file: {filename}")
+    return path
+
+
+def _verify_file(filename: str) -> Path:
+    path = _ensure_file(filename)
+    digest = _sha256(path)
+    expected = _FILE_HASHES[filename]
+    if digest != expected:
+        raise HashError(
+            f"Hash mismatch for {filename}: {digest} != {expected}"
+        )
+    return path
+
+
+# ------------------------------ Synthetic datasets ---------------------------
+
 def _toy_blobs(split: str, *, seed: int) -> Dataset:
-    """Synthetic Gaussian blobs for quick experiments.
-
-    The training split contains a single Gaussian cluster representing
-    "normal" data. The test split mixes the same cluster with an equal
-    number of points from a second, well separated cluster which are
-    labelled as anomalies.
-
-    Data are generated via :func:`sklearn.datasets.make_blobs` and are
-    fully deterministic given ``seed``.
-
-    References
-    ----------
-    * F. Pedregosa et al., "Scikit-learn: Machine Learning in Python",
-      Journal of Machine Learning Research, 2011.
-    """
-
+    """Synthetic Gaussian blobs for quick experiments."""
     rng = np.random.default_rng(seed)
 
     if split == "train":
@@ -62,24 +168,8 @@ def _toy_blobs(split: str, *, seed: int) -> Dataset:
     raise KeyError(f"Unknown split: {split}")
 
 
-
 def _toy_circles(split: str, *, seed: int) -> Dataset:
-    """Synthetic concentric circles classification toy dataset.
-
-    The training split consists solely of the inner circle, representing
-    normal observations. The test split contains an equal number of points
-    from both the inner circle and the outer ring. Points on the outer ring
-    are labelled as anomalies.
-
-    Data are generated via :func:`sklearn.datasets.make_circles` and are fully
-    deterministic given ``seed``.
-
-    References
-    ----------
-    * F. Pedregosa et al., "Scikit-learn: Machine Learning in Python",
-      Journal of Machine Learning Research, 2011.
-    """
-
+    """Synthetic concentric circles classification toy dataset."""
     from sklearn.datasets import make_circles
 
     rng = np.random.default_rng(seed)
@@ -101,39 +191,24 @@ def _toy_circles(split: str, *, seed: int) -> Dataset:
             factor=0.3,
             random_state=rng.integers(0, 2**32 - 1),
         )
-        # points on the outer ring are anomalies
         y = (y == 0).astype(int)
         return X.astype(np.float64), y
 
     raise KeyError(f"Unknown split: {split}")
 
 
+# ------------------------------ Real datasets -------------------------------
+
 def _breast_cancer(split: str, *, seed: int) -> Dataset:
-    """Breast Cancer Wisconsin (Diagnostic) dataset.
-
-    Benign samples are treated as normal data and malignant samples as
-    anomalies. The training split contains only benign cases. The test
-    split is a stratified 20% hold-out containing both classes.
-
-    Data are loaded via :func:`sklearn.datasets.load_breast_cancer` and the
-    split is performed deterministically using
-    :func:`sklearn.model_selection.train_test_split` with ``seed``.
-
-    References
-    ----------
-    * W. N. Street, W. H. Wolberg, and O. L. Mangasarian,
-      "Nuclear feature extraction for breast tumor diagnosis," IS&T/SPIE,
-      1993.
-    * D. Dua and C. Graff, "UCI Machine Learning Repository", 2019.
-    """
-
-    from sklearn.datasets import load_breast_cancer
+    """Breast Cancer Wisconsin (Diagnostic) dataset."""
     from sklearn.model_selection import train_test_split  # type: ignore[import-untyped]
 
+    path = _verify_file("breast_cancer.npz")
+    with np.load(path) as data:
+        X = data["X"]
+        y = data["y"]
+
     rng = np.random.default_rng(seed)
-
-    X, y = load_breast_cancer(return_X_y=True)
-
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
@@ -154,30 +229,15 @@ def _breast_cancer(split: str, *, seed: int) -> Dataset:
 
 
 def _wine(split: str, *, seed: int) -> Dataset:
-    """UCI Wine recognition dataset.
-
-    Class ``0`` (Cultivar 1) is considered normal. The training split
-    contains only this class. The test split is a stratified 20% hold-out
-    containing all three classes with non-normal samples labelled as
-    anomalies.
-
-    Data are loaded via :func:`sklearn.datasets.load_wine` and the split is
-    performed deterministically using
-    :func:`sklearn.model_selection.train_test_split` with ``seed``.
-
-    References
-    ----------
-    * M. Forina et al., "Parvus" dataset, 1991.
-    * D. Dua and C. Graff, "UCI Machine Learning Repository", 2019.
-    """
-
-    from sklearn.datasets import load_wine
+    """UCI Wine recognition dataset."""
     from sklearn.model_selection import train_test_split
 
+    path = _verify_file("wine.npz")
+    with np.load(path) as data:
+        X = data["X"]
+        y = data["y"]
+
     rng = np.random.default_rng(seed)
-
-    X, y = load_wine(return_X_y=True)
-
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
@@ -198,28 +258,15 @@ def _wine(split: str, *, seed: int) -> Dataset:
 
 
 def _digits(split: str, *, seed: int) -> Dataset:
-    """Scikit-learn digits dataset.
-
-    Digit ``0`` is treated as the normal class. The training split contains
-    only zeros. The test split is a stratified 20% hold-out containing all
-    digits with non-zero digits labelled as anomalies.
-
-    Data are loaded via :func:`sklearn.datasets.load_digits` and the split is
-    performed deterministically using
-    :func:`sklearn.model_selection.train_test_split` with ``seed``.
-
-    References
-    ----------
-    * K. Bache and M. Lichman, "UCI Machine Learning Repository", 2013.
-    """
-
-    from sklearn.datasets import load_digits
+    """Scikit-learn digits dataset."""
     from sklearn.model_selection import train_test_split
 
+    path = _verify_file("digits.npz")
+    with np.load(path) as data:
+        X = data["X"]
+        y = data["y"]
+
     rng = np.random.default_rng(seed)
-
-    X, y = load_digits(return_X_y=True)
-
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
@@ -239,45 +286,27 @@ def _digits(split: str, *, seed: int) -> Dataset:
     raise KeyError(f"Unknown split: {split}")
 
 
-def _nab_twitter_aapl(split: str, *, seed: int) -> Dataset:
-    """Twitter volume for AAPL from the NAB dataset.
-
-    Data are windowed with length ``24`` and stride ``1``. The first 80%% of
-    windows are returned as the training split without labels. The remaining
-    windows form the test split with binary labels derived from
-    ``labels/combined_labels.json`` of the NAB repository.
-    """
-
-    import json
-    import urllib.request
-
+def _nab_twitter_aapl(split: str, *, seed: int) -> Dataset:  # noqa: ARG001
+    """Twitter volume for AAPL from the NAB dataset."""
     from numpy.lib.stride_tricks import sliding_window_view
 
-    data_url = (
-        "https://raw.githubusercontent.com/numenta/NAB/master/data/realTweets/"
-        "Twitter_volume_AAPL.csv"
-    )
-    label_url = (
-        "https://raw.githubusercontent.com/numenta/NAB/master/labels/"
-        "combined_labels.json"
-    )
+    data_path = _verify_file("Twitter_volume_AAPL.csv")
+    label_path = _verify_file("nab_labels.json")
 
-    with urllib.request.urlopen(data_url) as f:
-        arr = np.genfromtxt(f, delimiter=",", skip_header=1, dtype="str")
-
+    arr = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype="str")
     times = np.array(arr[:, 0], dtype="datetime64[s]")
     values = arr[:, 1].astype(np.float64)
 
-    with urllib.request.urlopen(label_url) as f:
+    with open(label_path) as f:
         labels = json.load(f)["realTweets/Twitter_volume_AAPL.csv"]
     anomaly_times = np.array([np.datetime64(t) for t in labels])
 
     flags = np.isin(times, anomaly_times).astype(int)
     window = 24
     windows = sliding_window_view(values, window)
-    labels_window = np.array([
-        flags[i : i + window].max() for i in range(len(windows))
-    ], dtype=int)
+    labels_window = np.array(
+        [flags[i : i + window].max() for i in range(len(windows))], dtype=int
+    )
 
     split_idx = int(0.8 * len(windows))
 
@@ -301,20 +330,29 @@ _REGISTRY = {
 
 
 def load_dataset(name: str, split: str = "train", *, seed: int = 42) -> Dataset:
-    """Load a dataset by name.
-
-    Parameters
-    ----------
-    name:
-        Dataset identifier.
-    split:
-        ``"train"`` or ``"test"``.
-    seed:
-        Random seed controlling synthetic data generation.
-    """
-
+    """Load a dataset by name verifying file hashes."""
     try:
         loader = _REGISTRY[name]
-    except KeyError as exc:
+    except KeyError as exc:  # pragma: no cover - defensive
         raise KeyError(f"Unknown dataset: {name!r}") from exc
     return loader(split, seed=seed)
+
+
+def prepare_datasets() -> None:
+    """Ensure all dataset files are present and hashed."""
+    for fname in _FILE_HASHES:
+        _verify_file(fname)
+
+
+if __name__ == "__main__":  # pragma: no cover - CLI helper
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Dataset utilities")
+    parser.add_argument(
+        "--fetch",
+        action="store_true",
+        help="Download and verify all dataset files",
+    )
+    args = parser.parse_args()
+    if args.fetch:
+        prepare_datasets()

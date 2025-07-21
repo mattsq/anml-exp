@@ -1,8 +1,13 @@
 from __future__ import annotations
 
-import numpy.testing as npt
+from importlib.resources import files
+from pathlib import Path
 
-from anml_exp.data import load_dataset
+import numpy.testing as npt
+import pytest
+
+from anml_exp.data import HashError, load_dataset
+from anml_exp.data.registry import _FILE_HASHES, _sha256
 
 
 def test_toy_blobs_deterministic() -> None:
@@ -137,4 +142,16 @@ def test_nab_twitter_aapl_shapes() -> None:
     assert X_test.shape[1] == 24
     assert y_test is not None
     assert y_test.shape == (X_test.shape[0],)
+
+
+def test_dataset_hashes() -> None:
+    for fname, expected in _FILE_HASHES.items():
+        path = files("anml_exp.data").joinpath("datasets", fname)
+        assert _sha256(Path(str(path))) == expected
+
+
+def test_hash_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setitem(_FILE_HASHES, "wine.npz", "0" * 64)
+    with pytest.raises(HashError):
+        load_dataset("wine", split="train")
 

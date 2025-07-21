@@ -1,4 +1,4 @@
 """Dataset loading utilities."""
-from .registry import load_dataset
+from .registry import HashError, load_dataset, prepare_datasets
 
-__all__ = ["load_dataset"]
+__all__ = ["load_dataset", "prepare_datasets", "HashError"]

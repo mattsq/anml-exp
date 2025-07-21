@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from anml_exp.registry import Registry
 
 
-def test_registry_roundtrip(tmp_path):
+def test_registry_roundtrip(tmp_path: Path) -> None:
     registry = Registry(tmp_path)
     obj = {"a": 1}
     digest = registry.save(obj, "dummy", "0.1.0")
