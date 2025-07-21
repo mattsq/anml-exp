@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import cast
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -91,7 +90,7 @@ class GNSMModel(BaseAnomalyModel):
         X_oh = self._one_hot(X)
         with torch.no_grad():
             eta = self._embed(torch.as_tensor(X_oh, device=self.device))
-        ll: np.ndarray = self.gmm.score_samples(eta.cpu().numpy())
+        ll: NDArray = self.gmm.score_samples(eta.cpu().numpy())
         return (-ll).astype(float)
 
     # ------------------------------------------------------------------
