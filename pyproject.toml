@@ -42,6 +42,9 @@ select = ["E", "F", "I"]
 python_version = "3.11"
 strict = true
 mypy_path = ["src"]
+[[tool.mypy.overrides]]
+module = ["torch", "torch.*"]
+ignore_missing_imports = true
 
 [tool.setuptools.packages.find]
 where = ["src"]

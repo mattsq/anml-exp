@@ -7,7 +7,7 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
-import yaml  # type: ignore[import-untyped]
+import yaml
 
 from anml_exp.benchmarks.evaluator import _normalize_hardware, run_benchmark
 
@@ -16,7 +16,7 @@ SCHEMA_PATH = files("anml_exp.resources").joinpath("results-schema.json")
 
 def _validate(result: dict[str, Any]) -> None:
     """Validate ``result`` using ``results/results-schema.json``."""
-    import jsonschema  # type: ignore[import-untyped]
+    import jsonschema
 
     schema = json.loads(SCHEMA_PATH.read_text())
     jsonschema.validate(result, schema)
