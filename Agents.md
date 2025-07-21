@@ -1,4 +1,4 @@
-# Agents.md   ― spec _version: **0.3.1**  (2025-07-20)
+# Agents.md   ― spec _version: **0.3.2**  (2025-07-21)
 
 > **TL;DR**    
 > `anml-exp` is a *pip-installable* anomaly-detection playground with locked
@@ -165,7 +165,7 @@ flowchart TD
     draft --> review --> maintainer
 
 CI additionally ensures:
-	•	uv pip sync -r uv.lock produces identical env (#42).
+	•	uv sync --frozen produces identical env (#42).
 	•	Dataset SHA-256s match declared values (#44).
 
 ⸻
@@ -189,7 +189,7 @@ CI additionally ensures:
 8 · Installation & Quick-Start
 
 # Reproducible dev install
-uv pip sync -r uv.lock
+uv sync --frozen
 pip install -e ".[torch,plot]"
 # After release:
 pip install anml-exp[torch,plot]

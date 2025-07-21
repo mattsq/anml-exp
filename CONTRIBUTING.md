@@ -13,7 +13,7 @@ Only humans can merge PRs. Reviewer also re-runs checks on `main` nightly to cat
 - `ruff` for linting and formatting.
 - `mypy --strict` for type checking.
 - `pytest` for the unit test suite.
-- `uv pip sync -r uv.lock` to ensure the environment matches the lock file.
+- `uv sync --frozen` to ensure the environment matches the lock file.
 - Dataset SHA-256 verification.
 
 The Reviewer role ensures these checks succeed before a PR can be merged.

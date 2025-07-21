@@ -22,7 +22,7 @@
 Create the Python environment from the lock file before installing the project:
 
 ```bash
-uv pip sync -r uv.lock
+uv sync --frozen
 pip install -e ".[torch,plot]"
 ```
 
