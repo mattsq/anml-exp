@@ -100,7 +100,7 @@ def run_benchmark(
     try:
         model_version = __version__
     except Exception:
-        model_version = "0.0.1"
+        model_version = "0.3.1"
     artefact_digest = None
     if registry is not None:
         artefact_digest = model.save(registry, model_name, model_version)
