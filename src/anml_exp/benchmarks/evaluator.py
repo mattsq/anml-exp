@@ -5,7 +5,7 @@ import argparse
 import json
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 import numpy as np
 from sklearn.metrics import (  # type: ignore[import-untyped]
@@ -15,6 +15,7 @@ from sklearn.metrics import (  # type: ignore[import-untyped]
     roc_curve,
 )
 
+from anml_exp import __version__
 from anml_exp.data import load_dataset
 from anml_exp.models import (
     BaseAnomalyModel,
@@ -26,6 +27,7 @@ from anml_exp.models import (
     PCAAnomalyModel,
     USADModel,
 )
+from anml_exp.registry import Registry
 
 # Registry of available models
 MODEL_REGISTRY: dict[str, type[BaseAnomalyModel]] = {
@@ -39,12 +41,35 @@ MODEL_REGISTRY: dict[str, type[BaseAnomalyModel]] = {
 }
 
 
+def _normalize_hardware(hardware: str | Mapping[str, Any]) -> dict[str, Any]:
+    """Return hardware descriptor with required fields."""
+    if isinstance(hardware, Mapping):
+        return {
+            "device_type": str(hardware.get("device_type", "unknown")),
+            "vendor": str(hardware.get("vendor", "unknown")),
+            "model": str(hardware.get("model", "unknown")),
+            "driver": str(hardware.get("driver", "N/A")),
+            "num_devices": int(hardware.get("num_devices", 1)),
+            "notes": str(hardware.get("notes", "")),
+        }
+    return {
+        "device_type": "unknown",
+        "vendor": "unknown",
+        "model": "unknown",
+        "driver": "N/A",
+        "num_devices": 1,
+        "notes": str(hardware),
+    }
+
+
 def run_benchmark(
     dataset: str,
     model_name: str,
     seed: int,
-    hardware: str,
+    hardware: str | Mapping[str, Any],
     output: Path,
+    *,
+    registry: Registry | None = None,
     **model_params: Any,
 ) -> dict[str, Any]:
     """Run a benchmark and write results to ``output``."""
@@ -71,12 +96,22 @@ def run_benchmark(
 
     params = model.model.get_params() if hasattr(model, "model") else {}
 
+    hw = _normalize_hardware(hardware)
+    try:
+        model_version = __version__
+    except Exception:
+        model_version = "0.0.1"
+    artefact_digest = None
+    if registry is not None:
+        artefact_digest = model.save(registry, model_name, model_version)
+
     result = {
         "dataset": dataset,
         "model": model_name,
+        "model_version": model_version,
         "n_samples": int(len(X_test)),
         "seed": seed,
-        "hardware": hardware,
+        "hardware": hw,
         "roc_auc": roc_auc,
         "pr_auc": pr_auc,
         "f1": f1,
@@ -85,6 +120,8 @@ def run_benchmark(
         "score_time": float(score_time),
         "params": params,
     }
+    if artefact_digest is not None:
+        result["artefact_digest"] = artefact_digest
 
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("w") as f:

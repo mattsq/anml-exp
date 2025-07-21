@@ -1,7 +1,13 @@
 # Experiment: toy-circles dataset with all reference models
 dataset: toy-circles
 seed: 42
-hardware: CPU-unknown
+hardware:
+  device_type: CPU
+  vendor: unknown
+  model: unknown
+  driver: N/A
+  num_devices: 1
+  notes: example
 output_dir: results/toy-circles
 models:
   isolation_forest:

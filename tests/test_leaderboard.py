@@ -14,7 +14,14 @@ def test_write_leaderboard(tmp_path: Path) -> None:
         dataset="toy-blobs",
         model_name="isolation_forest",
         seed=0,
-        hardware="test",
+        hardware={
+            "device_type": "CPU",
+            "vendor": "test",
+            "model": "generic",
+            "driver": "N/A",
+            "num_devices": 1,
+            "notes": "test",
+        },
         output=tmp_path / "res.json",
         n_estimators=10,
     )

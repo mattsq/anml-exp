@@ -5,7 +5,7 @@ import os
 from importlib.resources import files
 from pathlib import Path
 
-import jsonschema
+import jsonschema  # type: ignore[import-untyped]
 import pytest
 
 from anml_exp.benchmarks.evaluator import run_benchmark
@@ -18,7 +18,14 @@ def test_matrix_profile_perf(tmp_path: Path) -> None:
         dataset="nab-twitter-aapl",
         model_name="matrix_profile",
         seed=0,
-        hardware="test",
+        hardware={
+            "device_type": "CPU",
+            "vendor": "test",
+            "model": "generic",
+            "driver": "N/A",
+            "num_devices": 1,
+            "notes": "test",
+        },
         output=out,
     )
     schema = json.loads(

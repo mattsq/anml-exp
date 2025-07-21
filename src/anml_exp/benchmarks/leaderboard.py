@@ -5,11 +5,11 @@ import argparse
 import json
 from importlib.resources import files
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Mapping, Sequence
 
-import pandas as pd
+import pandas as pd  # type: ignore[import-untyped]
 
-from .evaluator import run_benchmark
+from .evaluator import _normalize_hardware, run_benchmark
 
 DATASETS: Sequence[str] = ["breast-cancer", "wine", "digits"]
 
@@ -25,7 +25,7 @@ SCHEMA_PATH = files("anml_exp.resources").joinpath("results-schema.json")
 
 def _validate(result: dict[str, Any]) -> None:
     """Validate ``result`` against ``results-schema.json``."""
-    import jsonschema
+    import jsonschema  # type: ignore[import-untyped]
 
     schema = json.loads(SCHEMA_PATH.read_text())
     jsonschema.validate(result, schema)
@@ -36,9 +36,10 @@ def run_all(
     datasets: Sequence[str] = DATASETS,
     models: Sequence[str] = MODELS,
     seed: int = 42,
-    hardware: str = "unknown",
+    hardware: str | Mapping[str, Any] = "unknown",
 ) -> list[dict[str, Any]]:
     """Run benchmarks for all ``datasets`` and ``models``."""
+    hw = _normalize_hardware(hardware)
     results = []
     for dataset in datasets:
         for model_name in models:
@@ -47,7 +48,7 @@ def run_all(
                 dataset=dataset,
                 model_name=model_name,
                 seed=seed,
-                hardware=hardware,
+                hardware=hw,
                 output=out_file,
             )
             _validate(result)
