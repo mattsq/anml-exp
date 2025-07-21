@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Optional, cast
 
 import numpy as np
-import stumpy  # type: ignore[import-not-found]
+import stumpy  # type: ignore[import-untyped]
 
 from .base import ArrayLike, BaseAnomalyModel, NDArray
 

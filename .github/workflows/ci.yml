@@ -44,6 +44,11 @@ jobs:
         python -m pip install --upgrade pip
         uv pip sync -r uv.lock
 
+    - name: Download datasets
+      run: |
+        . .venv/bin/activate
+        python -m anml_exp.data.registry --fetch
+
     - name: Ruff
       run: |
         . .venv/bin/activate
