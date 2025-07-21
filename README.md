@@ -23,7 +23,7 @@ A unified interface to prototype and test anomaly detection methods.
 Create a reproducible environment with `uv` and install optional extras as needed:
 
 ```bash
-uv pip sync -r uv.lock
+uv sync --frozen
 pip install -e ".[torch,plot]"
 ```
 
