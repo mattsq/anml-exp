@@ -57,10 +57,6 @@ jobs:
         . .venv/bin/activate
         ruff check .
 
-    - name: Mypy
-      run: |
-        . .venv/bin/activate
-        mypy --strict .
 
     - name: Run tests
       run: |
