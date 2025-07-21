@@ -174,7 +174,8 @@ CI additionally ensures:
 	•	Dependency lock: uv.lock is the single source of truth.
 	•	PEP 8 via ruff; PEP 561 typing (mypy --strict).
         •       Speed up mypy in CI by caching `.mypy_cache` and installing
-                `mypy[faster-cache]` wheels only.
+                `mypy[faster-cache]` via `uv pip` to ensure the local
+                environment runs the optimized wheels.
 	•	NumPy-style docstrings.
 	•	pyproject.toml + uv.lock define mandatory and optional extras.
 
