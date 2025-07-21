@@ -5,7 +5,7 @@ import os
 from importlib.resources import files
 from pathlib import Path
 
-import jsonschema
+import jsonschema  # type: ignore[import-untyped]
 import pytest
 
 from anml_exp.benchmarks.evaluator import run_benchmark
@@ -19,7 +19,14 @@ def test_benchmark_smoke(tmp_path: Path) -> None:
         dataset="toy-blobs",
         model_name="isolation_forest",
         seed=0,
-        hardware="test",
+        hardware={
+            "device_type": "CPU",
+            "vendor": "test",
+            "model": "generic",
+            "driver": "N/A",
+            "num_devices": 1,
+            "notes": "test",
+        },
         output=out,
         n_estimators=10,
     )

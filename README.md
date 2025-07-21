@@ -29,5 +29,5 @@ Run the ``leaderboard`` command to benchmark all built-in tabular datasets and
 generate a Markdown leaderboard. Results are stored under ``results/leaderboard``.
 
 ```bash
-python -m anml_exp.cli leaderboard --hardware CPU-unknown
+python -m anml_exp.cli leaderboard --hardware '{"device_type":"CPU","vendor":"unknown","model":"unknown","driver":"N/A","num_devices":1,"notes":"example"}'
 ```

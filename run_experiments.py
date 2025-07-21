@@ -7,16 +7,16 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
-from anml_exp.benchmarks.evaluator import run_benchmark
+from anml_exp.benchmarks.evaluator import _normalize_hardware, run_benchmark
 
 SCHEMA_PATH = files("anml_exp.resources").joinpath("results-schema.json")
 
 
 def _validate(result: dict[str, Any]) -> None:
     """Validate ``result`` using ``results/results-schema.json``."""
-    import jsonschema
+    import jsonschema  # type: ignore[import-untyped]
 
     schema = json.loads(SCHEMA_PATH.read_text())
     jsonschema.validate(result, schema)
@@ -27,7 +27,8 @@ def _run(config: Path) -> None:
 
     dataset = data["dataset"]
     seed = int(data.get("seed", 42))
-    hardware = str(data.get("hardware", "unknown"))
+    hardware = data.get("hardware", "unknown")
+    hardware = _normalize_hardware(hardware)
     output_dir = Path(data.get("output_dir", f"results/{config.stem}"))
 
     models: dict[str, Any] = data["models"]

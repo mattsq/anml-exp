@@ -44,7 +44,7 @@ This writes a JSON file compatible with ``anml_exp/resources/results-schema.json
 
 Use the ``leaderboard`` command to benchmark all built-in tabular datasets and aggregate the results into a Markdown table::
 
-    python -m anml_exp.cli leaderboard --hardware CPU-unknown
+    python -m anml_exp.cli leaderboard --hardware '{"device_type":"CPU","vendor":"unknown","model":"unknown","driver":"N/A","num_devices":1,"notes":"example"}'
 
 
 ## Available datasets

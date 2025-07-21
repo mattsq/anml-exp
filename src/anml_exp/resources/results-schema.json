@@ -5,9 +5,29 @@
   "properties": {
     "dataset": {"type": "string"},
     "model": {"type": "string"},
+    "model_version": {"type": "string"},
+    "artefact_digest": {"type": "string"},
     "n_samples": {"type": "integer"},
     "seed": {"type": "integer"},
-    "hardware": {"type": "string"},
+    "hardware": {
+      "type": "object",
+      "properties": {
+        "device_type": {"type": "string"},
+        "vendor": {"type": "string"},
+        "model": {"type": "string"},
+        "driver": {"type": "string"},
+        "num_devices": {"type": "integer"},
+        "notes": {"type": "string"}
+      },
+      "required": [
+        "device_type",
+        "vendor",
+        "model",
+        "driver",
+        "num_devices",
+        "notes"
+      ]
+    },
     "roc_auc": {"type": "number"},
     "pr_auc": {"type": "number"},
     "f1": {"type": "number"},
@@ -17,8 +37,18 @@
     "params": {"type": "object"}
   },
   "required": [
-    "dataset", "model", "n_samples", "seed", "hardware",
-    "roc_auc", "pr_auc", "f1", "threshold", "fit_time",
-    "score_time", "params"
+    "dataset",
+    "model",
+    "model_version",
+    "n_samples",
+    "seed",
+    "hardware",
+    "roc_auc",
+    "pr_auc",
+    "f1",
+    "threshold",
+    "fit_time",
+    "score_time",
+    "params"
   ]
 }

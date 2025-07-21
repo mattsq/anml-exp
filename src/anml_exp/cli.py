@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from typing import Any
 
@@ -30,17 +31,27 @@ def main(argv: list[str] | None = None) -> None:
         model_params: dict[str, Any] = {
             k: eval(v) for k, v in (kv.split("=", 1) for kv in unknown if "=" in kv)
         }
+        hw = (
+            json.loads(args.hardware)
+            if args.hardware.strip().startswith("{")
+            else args.hardware
+        )
         result = run_benchmark(
             dataset=args.dataset,
             model_name=args.model,
             seed=args.seed,
-            hardware=args.hardware,
+            hardware=hw,
             output=args.output,
             **model_params,
         )
         print(result)
     elif args.command == "leaderboard":
-        results = run_all(seed=args.seed, hardware=args.hardware)
+        hw = (
+            json.loads(args.hardware)
+            if args.hardware.strip().startswith("{")
+            else args.hardware
+        )
+        results = run_all(seed=args.seed, hardware=hw)
         write_leaderboard(results, args.output_dir)
 
 
