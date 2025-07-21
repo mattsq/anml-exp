@@ -3,19 +3,17 @@ from __future__ import annotations
 from typing import Any, cast
 
 import numpy as np
+import pytest
 from numpy.typing import NDArray
 from sklearn.datasets import make_blobs  # type: ignore[import-untyped]
 
-from anml_exp.models import (
-    AutoEncoderModel,
-    DeepSVDDModel,
-    IsolationForestModel,
-    LocalOutlierFactorModel,
-    MatrixProfileModel,
-    OneClassSVMModel,
-    PCAAnomalyModel,
-    USADModel,
-)
+from anml_exp.models.autoencoder import AutoEncoderModel
+from anml_exp.models.deep_svdd import DeepSVDDModel
+from anml_exp.models.isolation_forest import IsolationForestModel
+from anml_exp.models.local_outlier_factor import LocalOutlierFactorModel
+from anml_exp.models.one_class_svm import OneClassSVMModel
+from anml_exp.models.pca_detector import PCAAnomalyModel
+from anml_exp.models.usad import USADModel
 
 
 def _toy_data() -> NDArray[np.float64]:
@@ -63,6 +61,8 @@ def test_usad_model() -> None:
 
 
 def test_matrix_profile_model() -> None:
+    pytest.importorskip("stumpy")
+    from anml_exp.models import MatrixProfileModel
     series = np.linspace(0, 1, 50)
     window = 5
     windows = np.lib.stride_tricks.sliding_window_view(series, window)
