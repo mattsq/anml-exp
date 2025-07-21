@@ -19,6 +19,7 @@ except Exception:  # pragma: no cover - optional dependency missing
 
 from .one_class_svm import OneClassSVMModel
 from .pca_detector import PCAAnomalyModel
+from .score_matching.gnsm import GNSMModel
 
 __all__ = [
     "BaseAnomalyModel",
@@ -26,6 +27,7 @@ __all__ = [
     "LocalOutlierFactorModel",
     "OneClassSVMModel",
     "PCAAnomalyModel",
+    "GNSMModel",
 ]
 
 if AutoEncoderModel is not None:
