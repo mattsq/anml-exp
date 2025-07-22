@@ -19,6 +19,7 @@ from anml_exp import __version__
 from anml_exp.data import load_dataset
 from anml_exp.models import (
     BaseAnomalyModel,
+    DDADTabularModel,
     DeepSVDDModel,
     GNSMModel,
     IsolationForestModel,
@@ -40,6 +41,7 @@ MODEL_REGISTRY: dict[str, type[BaseAnomalyModel]] = {
     "usad": USADModel,
     "matrix_profile": MatrixProfileModel,
     "gnsm": GNSMModel,
+    "ddad_tab": DDADTabularModel,
 }
 
 
