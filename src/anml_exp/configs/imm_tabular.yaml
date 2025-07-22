@@ -1,0 +1,15 @@
+model: imm_tabular
+model_hparams:
+  hidden: 256
+  t_dim: 64
+  n_steps: 8
+  beta: 2.0
+  mmd_bw: 1.0
+optim:
+  name: adamw
+  lr: 3e-4
+  weight_decay: 1e-4
+trainer:
+  batch_size: 256
+  num_epochs: 150
+  grad_clip: 1.0

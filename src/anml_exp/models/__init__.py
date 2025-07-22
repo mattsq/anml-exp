@@ -18,6 +18,7 @@ except Exception:  # pragma: no cover - optional dependency missing
     MatrixProfileModel = None  # type: ignore[misc,assignment]
 
 from .diffusion.ddad_tabular import DDADTabularModel
+from .imm_tabular import IMMTabularModel
 from .one_class_svm import OneClassSVMModel
 from .pca_detector import PCAAnomalyModel
 from .score_matching.gnsm import GNSMModel
@@ -30,6 +31,7 @@ __all__ = [
     "PCAAnomalyModel",
     "GNSMModel",
     "DDADTabularModel",
+    "IMMTabularModel",
 ]
 
 if AutoEncoderModel is not None:
@@ -44,4 +46,5 @@ if MatrixProfileModel is not None:
 
 _models: dict[str, type[BaseAnomalyModel]] = {
     "ddad_tab": DDADTabularModel,
+    "imm_tabular": IMMTabularModel,
 }
