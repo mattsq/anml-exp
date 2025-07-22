@@ -22,6 +22,7 @@ from anml_exp.models import (
     DDADTabularModel,
     DeepSVDDModel,
     GNSMModel,
+    IMMTabularModel,
     IsolationForestModel,
     LocalOutlierFactorModel,
     MatrixProfileModel,
@@ -42,6 +43,7 @@ MODEL_REGISTRY: dict[str, type[BaseAnomalyModel]] = {
     "matrix_profile": MatrixProfileModel,
     "gnsm": GNSMModel,
     "ddad_tab": DDADTabularModel,
+    "imm_tabular": IMMTabularModel,
 }
 
 
