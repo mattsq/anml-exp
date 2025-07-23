@@ -19,41 +19,6 @@ jobs:
           uv sync --frozen --extra dev
           uv pip install --upgrade --only-binary=:all: "mypy[faster-cache]>=1.13"
 
-      - name: Debug ⟶ uv + project env
-        run: |
-          set -x          # echo every command
-          uv --version
-          # Where *does* uv think the project env lives?
-          uv run -- python - <<'PY'
-          import sys, os, pathlib, importlib.metadata as md
-          print("sys.executable :", sys.executable)
-          print("VIRTUAL_ENV    :", os.environ.get("VIRTUAL_ENV"))
-          try:
-              print("mypy lib ver   :", md.version("mypy"))
-          except md.PackageNotFoundError:
-              print("mypy not in this interpreter")
-          PY
-
-      - name: Debug ⟶ list venv dir
-        run: |
-          ls -al
-          ls -al .venv || echo ".venv missing"
-
-      # ── 3️⃣  locate every mypy script on PATH -------------------------------------
-      - name: Debug ⟶ locate mypy
-        run: |
-          echo "PATH=$PATH"
-          which -a mypy || true
-          mypy --version || true    
-
-      - name: Debug ⟶ where + version
-        run: |
-          ls -l .venv/bin/mypy || true
-          .venv/bin/mypy --version || true
-
-      - name: Debug ⟶ pip list
-        run: .venv/bin/pip list | grep -E '^(mypyc|mypy)'
-
       - uses: actions/cache@v4
         with:
           path: .mypy_cache
@@ -61,4 +26,4 @@ jobs:
           restore-keys: ${{ runner.os }}-mypy-
 
       - name: Type check
-        run: .venv/bin/mypy -p anml_exp --workers auto
+        run: .venv/bin/mypy -p anml_exp -j 0
