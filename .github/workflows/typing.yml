@@ -19,12 +19,12 @@ jobs:
           uv sync --frozen --extra dev
           uv pip install --upgrade --only-binary=:all: "mypy[faster-cache]>=1.13"
           
-      - name: Debug: where + version
+      - name: "Debug: where + version"
         run: |
           ls -l .venv/bin/mypy || true
           .venv/bin/mypy --version || true
 
-      - name: Debug: pip list
+      - name: "Debug: pip list"
         run: .venv/bin/pip list | grep -E '^(mypyc|mypy)'
 
 
