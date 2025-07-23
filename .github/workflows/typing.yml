@@ -26,4 +26,6 @@ jobs:
           restore-keys: ${{ runner.os }}-mypy-
 
       - name: Type check
-        run: .venv/bin/mypy -p anml_exp -j 0
+        run: |
+         .venv/bin/mypy -h
+         .venv/bin/mypy -p anml_exp -j 0
