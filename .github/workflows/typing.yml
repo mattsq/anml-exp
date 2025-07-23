@@ -27,4 +27,4 @@ jobs:
 
       - name: Type check
         run: |
-         .venv/bin/dmypy run -p anml_exp --timeout 600
+         .venv/bin/dmypy run anml_exp --timeout 600
