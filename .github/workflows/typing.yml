@@ -46,7 +46,7 @@ jobs:
           which -a mypy || true
           mypy --version || true    
 
-      - name: Debug: where + version
+      - name: Debug ⟶ where + version
         run: |
           ls -l .venv/bin/mypy || true
           .venv/bin/mypy --version || true
