@@ -51,7 +51,7 @@ jobs:
           ls -l .venv/bin/mypy || true
           .venv/bin/mypy --version || true
 
-      - name: Debug: pip list
+      - name: Debug ⟶ pip list
         run: .venv/bin/pip list | grep -E '^(mypyc|mypy)'
 
       - uses: actions/cache@v4
